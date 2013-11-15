@@ -66,6 +66,33 @@ guyModule.factory('states', function(moveStates, hpStates){
 
 
 
+var points = [
+  { // chest
+    name: 'chest',
+    angle: 0,
+    length: 0,
+    children: [
+      { // head
+        name: 'head',
+        angle: 0,
+        length: 3
+      },
+      { // left arm
+        name: 'left arm',
+        angle: Math.PI * 0.5,
+        length: 5
+      },
+      { // right arm
+        name: 'right arm',
+        angle: -Math.PI * 0.5,
+        length: 5
+      }
+    ]
+  }
+];
+
+((points, 5, 5))
+
 guyModule.factory('Guy', function($q, states){
 
   return function Guy(){
@@ -118,7 +145,24 @@ guyModule.factory('Guy', function($q, states){
     };
 
     self.onDraw = function(ctx, timedelta){
-      ctx.fillRect(self.x, self.y, 10, 10);
+      function doDraw(points, x, y){
+        points.forEach(function(point){
+          var newX = Math.cos(point.angle) * point.length * 20;
+          var newY = Math.sin(point.angle) * point.length * 20;
+
+          ctx.moveTo(x, y);
+          ctx.beginPath();
+          ctx.lineTo(newX, newY);
+          ctx.closePath();
+          
+
+          if (point.children){
+            doDraw(point.children, newX, newY);
+          }
+        });
+      }
+      ctx.stroke();
+      doDraw(points, 10, 10);
     };
   };
 

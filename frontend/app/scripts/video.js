@@ -70,7 +70,6 @@ video.directive('screen', function(keyboard, engine, Guy){
       scope.player = new Guy();
       keyboard.init(scope.player);
       e.objects.push(scope.player);
-      e.objects.push(clear);
     }
   };
 });
