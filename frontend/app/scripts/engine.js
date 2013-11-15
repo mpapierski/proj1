@@ -4,19 +4,7 @@ engine.factory('engine', function() {
   return function() {
 
     var self = this;
-    self.objects = [{
-      x: 1,
-      y: 1,
-      w: 10,
-      h: 10,
-      onDraw: function(ctx) {
-        ctx.fillStyle = "black";
-        ctx.fillRect(this.x, this.y, this.w, this.h);
-      },
-      onTick: function(ctx) {
-        this.x += 1;
-      }
-    }];
+    self.objects = [];
     self.el = null; // canvas dom
     self.createCanvas = function(width, height) {
       var canvas = document.createElement('canvas');
