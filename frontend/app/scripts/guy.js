@@ -249,6 +249,7 @@ guyModule.factory('Guy', function($q, states, $timeout){
         });
       }
 
+      
       internal(self.currentAnim, self.previousAnim, self.targetAnim);
       if (self.animDone >= 500){
         self.currentAnim = self.targetAnim;
