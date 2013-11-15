@@ -135,19 +135,25 @@ app.factory('server', function(){
 
 
 
-var MainCtrl = function($scope, server, client){
+var MainCtrl = function($scope, server, client, $http){
   $scope.rtcdata = {
     ice: [],
     sdp: {}
   };
   $scope.client = null;
 
-
   var serverChannel = server($scope);
 
 
   $scope.$on('ice', function(evt, ice){
-    $scope.rtcdata.ice.push(ice);
+    //$scope.rtcdata.ice.push(ice);
+    $http({
+      method: 'POST',
+      url: '/api/room/',
+      data: ice
+    }).success(function(data, status, headers, config) {
+      console.log('wyslalem');
+    });
     $scope.$apply();
   });
 
@@ -168,7 +174,7 @@ app.config(function($stateProvider){
   $stateProvider.state('index',{
     url: '',
     controller: 'GameCtrl',
-    templateUrl: '/fragments/screen.html'
+    templateUrl: '/static/fragments/screen.html'
   });
 });
 

@@ -5,7 +5,7 @@ from flask.ext.security import Security, MongoEngineUserDatastore, \
     UserMixin, RoleMixin, login_required
 from flask.ext.script import Manager, Server, prompt, prompt_pass
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='frontend/app', static_url_path='/static')
 app.debug = os.getenv('DEBUG')
 app.config["MONGODB_SETTINGS"] = {'DB': "proj"}
 app.config['DEBUG'] = True
@@ -37,7 +37,7 @@ class Room(db.Document):
   title = db.StringField(max_length=100)
   def to_object(self):
     return {
-      'owner': owner.email,
+      'owner': self.owner.email,
       'title': self.title,
     }
 
@@ -60,8 +60,8 @@ def get_room_list():
 
 @app.route('/api/room/<server_id>/')
 def get_server_by_id(server_id):
-  obj = Room.objects(_id=server_id)
-  print obj
+  obj = Room.objects(_id=server_id)[0]
+  return json.dumps(obj.to_object())
   abort(404)
 
 # Manager
@@ -82,11 +82,11 @@ def create_user():
 @manager.command
 def create_room():
   owner = 'michal@papierski.net'
-  obj = User.objects(email=owner)
+  obj = User.objects(email=owner)[0]
   assert obj is not None
   title = prompt('Title')
   room = Room(owner=obj,title=title)
-
+  room.save()
 
 if __name__ == '__main__':
   manager.run()
