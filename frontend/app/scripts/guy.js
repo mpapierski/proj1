@@ -42,6 +42,9 @@ guyModule.factory('guy', function($q, states){
     var self = this;
 
     self.hp = 100;
+    self.x = 0;
+    self.y = 0;
+
 
     self.states = {
       moving: states.moving.idle,
@@ -74,6 +77,14 @@ guyModule.factory('guy', function($q, states){
         enterNewState();
       }
       
+    };
+    self.update = function(){
+
+    };
+
+    self.draw = function(ctx, timedelta){
+      self.update(timedelta);
+      ctx.fillRect(self.x, self.y, 10, 10);
     };
   };
 
