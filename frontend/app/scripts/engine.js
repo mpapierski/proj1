@@ -23,6 +23,7 @@ engine.factory('engine', function() {
     }
     var old = null;
     self.loop = function(timestamp) {
+      self.buffer.width = self.buffer.width;
       window.requestAnimationFrame(self.loop);
       if (old === null) {
         old = timestamp;
