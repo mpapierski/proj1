@@ -36,7 +36,7 @@ class User(db.Document, UserMixin):
 class Room(db.Document):
   title = db.StringField(max_length=100)
   content = db.DictField()
-  def to_object(self):
+  def to_json(self):
     return {'title': self.title,
       'content': self.content}
 
@@ -52,19 +52,19 @@ def home():
 
 @app.route('/api/room/', methods=['GET'])
 def get_room_list():
-  return json.dumps([room.to_object() for room in Room.objects])
+  return json.dumps([room.to_json() for room in Room.objects])
 
 @app.route('/api/room/', methods=['POST'])
 def post_room_list():
   data = request.json
   room = Room(title=data['title'], content=data['content'])
   room.save()
-  return json.dumps(room.to_object())
+  return json.dumps(room.to_json())
 
 @app.route('/api/room/<title>/', methods=['GET'])
 def get_room(title):
   rooms = Room.objects(title=title)
-  if rooms: return json.dumps(rooms[0].to_object())
+  if rooms: return json.dumps(rooms[0].to_json())
   abort(404)
 
 @app.route('/api/room/<title>/', methods=['PUT'])
@@ -76,7 +76,7 @@ def put_room(title):
   room = rooms[0]
   room.content = request.json['content']
   room.save()
-  return json.dumps(room.to_object())
+  return json.dumps(room.to_json())
 
 # Manager
 
