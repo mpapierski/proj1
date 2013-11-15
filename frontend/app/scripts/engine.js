@@ -4,11 +4,7 @@ engine.factory('engine', function() {
   return function() {
 
     var self = this;
-    self.objects = [{
-      tmp: function(ctx) {
-        ctx.fill
-      }
-    }]
+    self.objects = [];
     self.el = null; // canvas dom
 
     self.init = function(e) {
@@ -19,17 +15,17 @@ engine.factory('engine', function() {
       console.log('jestem')
     }
     
+    var old = null;
     self.loop = function(timestamp) {
       window.requestAnimationFrame(self.loop);
-      var old = null;
       if (old === null) {
         old = timestamp;
         return;
       }
-      for (var obj in self.objects) {
-        obj.onDraw(ctx, timestamp - old);
-        obj.onTick(ctx, timestamp - old);
-      }
+      self.objects.forEach(function(obj){
+        obj.onDraw(self.ctx, timestamp - old);
+        obj.onTick(self.ctx, timestamp - old);
+      });
       old = timestamp;
 
     }

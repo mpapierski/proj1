@@ -1,5 +1,5 @@
 /* global keypress */
-var video = angular.module('video', ['engine']);
+var video = angular.module('video', ['engine', 'guy']);
 
 video.controller('GameCtrl', function(){
     console.log('game');
@@ -27,7 +27,7 @@ video.factory('keyboard', function(){
 });
 
 
-video.directive('screen', function(keyboard, engine){
+video.directive('screen', function(keyboard, engine, Guy){
 
   return {
     replace: true,
@@ -39,14 +39,8 @@ video.directive('screen', function(keyboard, engine){
       var canvas = element[0];
       var e = new engine();
       e.init(canvas);
-      //var ctx = canvas.getContext('2d');
-      //
-      //keyboard.init(scope);
-      //scope.$watch('position.x', function(){
-      //  console.log('asd');
-      //  canvas.width = canvas.width;
-      //  ctx.fillRect(scope.position.x, 20, 100, 100);
-      //});
+      scope.player = new Guy();
+      e.objects.push(scope.player);
     }
   };
 });

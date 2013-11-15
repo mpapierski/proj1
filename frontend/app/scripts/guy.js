@@ -36,7 +36,7 @@ guyModule.factory('states', function(moveStates, hpStates){
 
 
 
-guyModule.factory('guy', function($q, states){
+guyModule.factory('Guy', function($q, states){
 
   return function Guy(){
     var self = this;
@@ -78,12 +78,9 @@ guyModule.factory('guy', function($q, states){
       }
       
     };
-    self.update = function(){
+    self.onTick = function(ctx, timedelta){};
 
-    };
-
-    self.draw = function(ctx, timedelta){
-      self.update(timedelta);
+    self.onDraw = function(ctx, timedelta){
       ctx.fillRect(self.x, self.y, 10, 10);
     };
   };
