@@ -1,9 +1,10 @@
 import os
-from flask import Flask, json, abort, render_template
+from flask import Flask, json, abort, render_template, request
 from flask.ext.mongoengine import MongoEngine
 from flask.ext.security import Security, MongoEngineUserDatastore, \
     UserMixin, RoleMixin, login_required
 from flask.ext.script import Manager, Server, prompt, prompt_pass
+from flask.ext import restful
 
 app = Flask(__name__, static_folder='frontend/app', static_url_path='/static')
 app.debug = os.getenv('DEBUG')
@@ -33,13 +34,11 @@ class User(db.Document, UserMixin):
     roles = db.ListField(db.ReferenceField(Role), default=[])
 
 class Room(db.Document):
-  owner = db.ReferenceField(User, verbose_name='Owner', required=True)
   title = db.StringField(max_length=100)
+  content = db.DictField()
   def to_object(self):
-    return {
-      'owner': self.owner.email,
-      'title': self.title,
-    }
+    return {'title': self.title,
+      'content': self.content}
 
 # Setup Flask-Security
 user_datastore = MongoEngineUserDatastore(db, User, Role)
@@ -51,18 +50,33 @@ security = Security(app, user_datastore)
 def home():
   return render_template('index.html')
 
-@app.route('/api/room/')
+@app.route('/api/room/', methods=['GET'])
 def get_room_list():
-  objects = []
-  for room in Room.objects:
-    objects.append(room.to_object())
-  return json.dumps(objects)
+  return json.dumps([room.to_object() for room in Room.objects])
 
-@app.route('/api/room/<server_id>/')
-def get_server_by_id(server_id):
-  obj = Room.objects(_id=server_id)[0]
-  return json.dumps(obj.to_object())
+@app.route('/api/room/', methods=['POST'])
+def post_room_list():
+  data = request.json
+  room = Room(title=data['title'], content=data['content'])
+  room.save()
+  return json.dumps(room.to_object())
+
+@app.route('/api/room/<title>/', methods=['GET'])
+def get_room(title):
+  rooms = Room.objects(title=title)
+  if rooms: return json.dumps(rooms[0].to_object())
   abort(404)
+
+@app.route('/api/room/<title>/', methods=['PUT'])
+def put_room(title):
+  rooms = Room.objects(
+    title=title)
+  if not rooms:
+    abort(404)
+  room = rooms[0]
+  room.content = request.json['content']
+  room.save()
+  return json.dumps(room.to_object())
 
 # Manager
 
