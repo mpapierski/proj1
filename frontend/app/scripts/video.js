@@ -1,21 +1,48 @@
 /* global keypress */
+'use strict';
+
+
 var video = angular.module('video', ['engine', 'guy']);
 
 video.controller('GameCtrl', function(){
-    console.log('game');
+  console.log('game');
 });
 
-
+// jshint camelcase: false
+// keypress.js api
 video.factory('keyboard', function(){
-
-
-
-
   return {
-    init: function(scope){
-      keypress.combo('d', function() {
-        scope.position.x += 1;
-        scope.$apply();
+    init: function(player){
+      console.log('elo init');
+      keypress.register_combo({
+        keys: 'd',
+        prevent_repeat: true,
+        on_keydown: function() {
+          player.onMessage({
+            type: 'right'
+          });
+        },
+        on_keyup: function(){
+          player.onMessage({
+            type: 'release_right'
+          });
+        }
+      });
+
+
+      keypress.register_combo({
+        keys: 'a',
+        prevent_repeat: true,
+        on_keydown: function() {
+          player.onMessage({
+            type: 'left'
+          });
+        },
+        on_keyup: function(){
+          player.onMessage({
+            type: 'release_left'
+          });
+        }
       });
 
 
@@ -25,7 +52,6 @@ video.factory('keyboard', function(){
 
 
 });
-
 
 video.directive('screen', function(keyboard, engine, Guy){
 
@@ -40,7 +66,9 @@ video.directive('screen', function(keyboard, engine, Guy){
       var e = new engine();
       e.init(canvas);
       scope.player = new Guy();
+      keyboard.init(scope.player);
       e.objects.push(scope.player);
+      e.objects.push(clear);
     }
   };
 });
