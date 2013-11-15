@@ -72,26 +72,74 @@ var points = [
     angle: 0,
     length: 0,
     children: [
+      {
+        name: 'neck',
+        angle: Math.PI,
+        length: 1.5,
+        children: [
+          { // head
+            name: 'head',
+            angle: Math.PI * 0.1,
+            length: 2
+          },
+        ]
+      },
       { // head
-        name: 'head',
+        name: 'body',
         angle: 0,
-        length: 3
+        length: 6,
+        children: [
+          {
+            name: 'right leg',
+            angle: Math.PI * 1.7,
+            length: 5,
+            children: [
+              {
+                angle: Math.PI*0.2,
+                length: 3
+              }
+            ]
+          },
+          {
+            name: 'left leg',
+            angle: -Math.PI * 1.7,
+            length: 5,
+            children: [
+              {
+                angle: Math.PI*0.2,
+                length: 3
+              }
+            ]
+          }
+        ]
       },
       { // left arm
         name: 'left arm',
         angle: Math.PI * 0.5,
-        length: 5
+        length: 5,
+        children: [
+          {
+            name: 'right hand',
+            angle: -Math.PI * 0.7,
+            length: 5
+          }
+        ]
       },
       { // right arm
         name: 'right arm',
         angle: -Math.PI * 0.5,
-        length: 5
+        length: 5,
+        children: [
+          {
+            name: 'right hand',
+            angle: Math.PI * 0.7,
+            length: 5
+          }
+        ]
       }
     ]
   }
 ];
-
-((points, 5, 5))
 
 guyModule.factory('Guy', function($q, states){
 
@@ -99,8 +147,8 @@ guyModule.factory('Guy', function($q, states){
     var self = this;
 
     self.hp = 100;
-    self.x = 0;
-    self.y = 0;
+    self.x = 200;
+    self.y = 200;
     self.acc = {
       factor: 0.01,
       x: 0,
@@ -145,24 +193,23 @@ guyModule.factory('Guy', function($q, states){
     };
 
     self.onDraw = function(ctx, timedelta){
-      function doDraw(points, x, y){
+      function doDraw(points, x, y, angle){
         points.forEach(function(point){
-          var newX = Math.cos(point.angle) * point.length * 20;
-          var newY = Math.sin(point.angle) * point.length * 20;
+          var drawAngle = angle + point.angle;
+          var newX = x + Math.cos(drawAngle) * point.length * 20;
+          var newY = y + Math.sin(drawAngle) * point.length * 20;
 
-          ctx.moveTo(x, y);
           ctx.beginPath();
+          ctx.moveTo(x, y);
           ctx.lineTo(newX, newY);
-          ctx.closePath();
-          
-
+          ctx.stroke();
           if (point.children){
-            doDraw(point.children, newX, newY);
+            doDraw(point.children, newX, newY, drawAngle);
           }
         });
+        
       }
-      ctx.stroke();
-      doDraw(points, 10, 10);
+      doDraw(points, self.x, self.y, Math.PI*0.5);
     };
   };
 
