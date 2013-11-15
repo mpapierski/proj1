@@ -5,21 +5,6 @@ from flask.ext.security import Security, MongoEngineUserDatastore, \
     UserMixin, RoleMixin, login_required
 from flask.ext.script import Manager, Server, prompt, prompt_pass
 
-SERVER_LIST = [
-{
-  'id': 1,
-  'title': 'Room 1',
-  'keys': ['key1', 'key2'],
-}, {
-  'id': 2,
-  'title': 'Room 2',
-  'key': 'key2'
-}, {
-  'id': 3,
-  'title': 'Room 3',
-  'key': 'key3'
-}]
-
 app = Flask(__name__)
 app.debug = os.getenv('DEBUG')
 app.config["MONGODB_SETTINGS"] = {'DB': "proj"}
@@ -47,8 +32,18 @@ class User(db.Document, UserMixin):
     confirmed_at = db.DateTimeField()
     roles = db.ListField(db.ReferenceField(Role), default=[])
 
+class Room(db.Document):
+  owner = db.ReferenceField(User, verbose_name='Owner', required=True)
+  title = db.StringField(max_length=100)
+  def to_object(self):
+    return {
+      'owner': owner.email,
+      'title': self.title,
+    }
+
 # Setup Flask-Security
 user_datastore = MongoEngineUserDatastore(db, User, Role)
+#room_datastore = MongoEngineUserDatastore(db, )
 security = Security(app, user_datastore)
 
 # Views
@@ -56,15 +51,17 @@ security = Security(app, user_datastore)
 def home():
   return render_template('index.html')
 
-@app.route('/api/server/')
-def get_server_list():
-  return json.dumps(SERVER_LIST)
+@app.route('/api/room/')
+def get_room_list():
+  objects = []
+  for room in Room.objects:
+    objects.append(room.to_object())
+  return json.dumps(objects)
 
-@app.route('/api/server/<int:server_id>/')
+@app.route('/api/room/<server_id>/')
 def get_server_by_id(server_id):
-  for server in SERVER_LIST:
-    if server['id'] == server_id:
-      return json.dumps(server)
+  obj = Room.objects(_id=server_id)
+  print obj
   abort(404)
 
 # Manager
@@ -83,7 +80,12 @@ def create_user():
   user_datastore.create_user(email=email, password=password)
 
 @manager.command
-def list_servers():
+def create_room():
+  owner = 'michal@papierski.net'
+  obj = User.objects(email=owner)
+  assert obj is not None
+  title = prompt('Title')
+  room = Room(owner=obj,title=title)
 
 
 if __name__ == '__main__':
