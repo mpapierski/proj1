@@ -207,7 +207,7 @@ var points2 = [
         children: [
           {
             name: 'right hand',
-            angle: Math.PI * 0.7,
+            angle: Math.PI * 1.7,
             length: 5
           }
         ]
@@ -232,12 +232,29 @@ guyModule.factory('Guy', function($q, states, $timeout){
 
     self.currentAnim = angular.copy(idlePoints);
     self.previousAnim = idlePoints;
-    self.targetAnim = idlePoints;
+    self.targetAnim = points2;
     self.animDone = 0;
     function doAnimate(delta){
       self.animDone += delta / 500;
+      function internal(currentAnim, previousAnim, targetAnim){
+        _.each(_.zip(currentAnim, previousAnim, targetAnim), function(objs){
+          var current = objs[0];
+          var previous = objs[1];
+          var target = objs[2];
+          current.length = previous.length * (1 - self.animDone) + target.length * self.animDone;
+          current.angle = previous.angle * (1 - self.animDone) + target.angle * self.animDone;
+          if (current.children){
+            internal(current.children, previous.children, target.children);
+          }
+        });
+      }
+
+      internal(self.currentAnim, self.previousAnim, self.targetAnim);
+      if (self.animDone >= 500){
+        self.currentAnim = self.targetAnim;
+        self.previousAnim = self.targetAnim;
+      }
     }
-    doAnimate(300);
 
     self.states = {
       moving: states.moving.idle,
@@ -274,7 +291,8 @@ guyModule.factory('Guy', function($q, states, $timeout){
     };
     self.onTick = function(ctx, timedelta){
       self.x += timedelta * self.acc.x;
-      
+          // doAnimate(timedelta);
+
     };
 
     self.onDraw = function(ctx, timedelta){
