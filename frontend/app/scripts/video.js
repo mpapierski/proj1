@@ -11,42 +11,44 @@ video.controller('GameCtrl', function(){
 // jshint camelcase: false
 // keypress.js api
 video.factory('keyboard', function(){
+
+
   return {
     init: function(player){
-      console.log('elo init');
-      keypress.register_combo({
-        keys: 'd',
-        prevent_repeat: true,
-        on_keydown: function() {
-          player.onMessage({
-            type: 'right'
-          });
+
+      var keys = [
+        {
+          keys: 'd',
+          prevent_repeat: true,
+          on_keydown: function() {
+            player.onMessage({
+              type: 'right'
+            });
+          },
+          on_keyup: function(){
+            player.onMessage({
+              type: 'release_right'
+            });
+          }
         },
-        on_keyup: function(){
-          player.onMessage({
-            type: 'release_right'
-          });
+        {
+          keys: 'a',
+          prevent_repeat: true,
+          on_keydown: function() {
+            player.onMessage({
+              type: 'left'
+            });
+          },
+          on_keyup: function(){
+            player.onMessage({
+              type: 'release_left'
+            });
+          }
         }
-      });
+      ];
 
-
-      keypress.register_combo({
-        keys: 'a',
-        prevent_repeat: true,
-        on_keydown: function() {
-          player.onMessage({
-            type: 'left'
-          });
-        },
-        on_keyup: function(){
-          player.onMessage({
-            type: 'release_left'
-          });
-        }
-      });
-
-
-
+    
+      keypress.register_many(keys);
     }
   };
 
