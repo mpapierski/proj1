@@ -23,11 +23,11 @@ engine.factory('engine', function() {
     }
     var old = null;
     self.loop = function(timestamp) {
-      window.requestAnimationFrame(self.loop);
-      if (old === null) {
-        old = timestamp;
-        return;
-      }
+      // window.requestAnimationFrame(self.loop);
+      // if (old === null) {
+      //   old = timestamp;
+      //   return;
+      // }
       self.objects.forEach(function(obj) {
         obj.onDraw(self.bufferCtx, timestamp - old);
         obj.onTick(self.bufferCtx, timestamp - old);

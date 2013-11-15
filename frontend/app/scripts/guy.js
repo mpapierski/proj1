@@ -66,7 +66,7 @@ guyModule.factory('states', function(moveStates, hpStates){
 
 
 
-var points = [
+var idlePoints = [
   { // chest
     name: 'chest',
     angle: 0,
@@ -141,7 +141,82 @@ var points = [
   }
 ];
 
-guyModule.factory('Guy', function($q, states){
+var points2 = [
+  { // chest
+    name: 'chest',
+    angle: 0,
+    length: 0,
+    children: [
+      {
+        name: 'neck',
+        angle: Math.PI,
+        length: 1.5,
+        children: [
+          { // head
+            name: 'head',
+            angle: Math.PI * 0.1,
+            length: 2
+          },
+        ]
+      },
+      { // head
+        name: 'body',
+        angle: 0,
+        length: 6,
+        children: [
+          {
+            name: 'right leg',
+            angle: Math.PI * 1.7,
+            length: 5,
+            children: [
+              {
+                angle: Math.PI*0.2,
+                length: 3
+              }
+            ]
+          },
+          {
+            name: 'left leg',
+            angle: -Math.PI * 1.7,
+            length: 5,
+            children: [
+              {
+                angle: Math.PI*0.2,
+                length: 3
+              }
+            ]
+          }
+        ]
+      },
+      { // left arm
+        name: 'left arm',
+        angle: Math.PI * 0.5,
+        length: 5,
+        children: [
+          {
+            name: 'right hand',
+            angle: -Math.PI * 0.7,
+            length: 5
+          }
+        ]
+      },
+      { // right arm
+        name: 'right arm',
+        angle: -Math.PI * 0.5,
+        length: 5,
+        children: [
+          {
+            name: 'right hand',
+            angle: Math.PI * 0.7,
+            length: 5
+          }
+        ]
+      }
+    ]
+  }
+];
+
+guyModule.factory('Guy', function($q, states, $timeout){
 
   return function Guy(){
     var self = this;
@@ -154,6 +229,15 @@ guyModule.factory('Guy', function($q, states){
       x: 0,
       y: 0
     };
+
+    self.currentAnim = angular.copy(idlePoints);
+    self.previousAnim = idlePoints;
+    self.targetAnim = idlePoints;
+    self.animDone = 0;
+    function doAnimate(delta){
+      self.animDone += delta / 500;
+    }
+    doAnimate(300);
 
     self.states = {
       moving: states.moving.idle,
@@ -190,6 +274,7 @@ guyModule.factory('Guy', function($q, states){
     };
     self.onTick = function(ctx, timedelta){
       self.x += timedelta * self.acc.x;
+      
     };
 
     self.onDraw = function(ctx, timedelta){
@@ -209,7 +294,7 @@ guyModule.factory('Guy', function($q, states){
         });
         
       }
-      doDraw(points, self.x, self.y, Math.PI*0.5);
+      doDraw(self.currentAnim, self.x, self.y, Math.PI*0.5);
     };
   };
 
