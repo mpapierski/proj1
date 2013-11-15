@@ -59,7 +59,7 @@ video.directive('screen', function(keyboard, engine, Guy){
 
   return {
     replace: true,
-    template: '<canvas></canvas>',
+    template: '<canvas width="640" height="480"></canvas>',
     link: function(scope, element, atrts){
       scope.position = {
         x: 0
