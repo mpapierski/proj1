@@ -1,5 +1,5 @@
 /* global keypress */
-var video = angular.module('video', []);
+var video = angular.module('video', ['engine']);
 
 video.controller('GameCtrl', function(){
     console.log('game');
@@ -44,7 +44,6 @@ video.directive('screen', function(keyboard){
         console.log('asd');
         canvas.width = canvas.width;
         ctx.fillRect(scope.position.x, 20, 100, 100);
-    
       });
     }
   };
