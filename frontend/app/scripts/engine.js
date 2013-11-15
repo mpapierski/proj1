@@ -6,15 +6,21 @@ engine.factory('engine', function() {
     var self = this;
     self.objects = [];
     self.el = null; // canvas dom
+    self.createCanvas = function(width, height) {
+      var canvas = document.createElement('canvas');
 
-    self.init = function(e) {
-      self.el = e;
+      canvas.width = width;
+      canvas.height = height;
 
-      self.ctx = e.getContext('2d');
-      window.requestAnimationFrame(self.loop);
-      console.log('jestem')
+      return canvas;
     }
-    
+    self.init = function(el) {
+      self.el = el;
+      self.ctx = self.el.getContext('2d');
+      self.buffer = self.createCanvas(640, 480);
+      self.bufferCtx = self.buffer.getContext('2d');
+      window.requestAnimationFrame(self.loop);
+    }
     var old = null;
     self.loop = function(timestamp) {
       window.requestAnimationFrame(self.loop);
@@ -22,12 +28,12 @@ engine.factory('engine', function() {
         old = timestamp;
         return;
       }
-      self.objects.forEach(function(obj){
+      self.objects.forEach(function(obj) {
         obj.onDraw(self.ctx, timestamp - old);
         obj.onTick(self.ctx, timestamp - old);
       });
       old = timestamp;
-
+     // self.ctx.drawImage(self.buffer,0, 0);
     }
   }
 });
