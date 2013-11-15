@@ -1,35 +1,42 @@
 'use strict';
 
 
-
-
-
 var guyModule = angular.module('guy', []);
 
-guyModule.factory('guy', function($q){
 
-  var runningState = {
-    onEnter: function(sender){
+guyModule.factory('moveStates', function(){
 
-    },
-    onExit: function(sender){
+  return {
+    idle: {}
+  };
 
+});
+
+guyModule.factory('hpStates', function(){
+
+  return {
+    normal: {
+      hit: function(guy, message){
+        var dmg = message.power;
+        guy.hp -= dmg;
+      }
     }
   };
 
-  var normalHpState = {
-    onEnter: function(sender){
+});
 
-    },
-    onExit: function(sender){
+guyModule.factory('states', function(moveStates, hpStates){
 
-    },
-
-    hit: function(guy, message){
-      var dmg = message.power;
-      guy.hp -= dmg;
-    }
+  return {
+    moving: moveStates,
+    hp: hpStates
   };
+
+});
+
+
+
+guyModule.factory('guy', function($q, states){
 
   return function Guy(){
     var self = this;
@@ -37,8 +44,8 @@ guyModule.factory('guy', function($q){
     self.hp = 100;
 
     self.states = {
-      moving: runningState,
-      hp: normalHpState
+      moving: states.moving.idle,
+      hp: states.hp.normal
     };
 
     self.onMessage = function(msg){
@@ -51,12 +58,22 @@ guyModule.factory('guy', function($q){
       });
     };
 
-    self.transitionTo = function(kind, state){
+    self.transitionTo = function(kind, stateName){
+      function enterNewState (){
+        var newState = states[kind][stateName];
+        self.states[kind] = newState;
+        if (newState.onEnter){
+          newState.onEnter(self);
+        }
+      }
+
       var currentState = self.states[kind];
-      currentState.onExit(self).then(function(){
-        self.states[kind] = state;
-        state.onEnter(self);
-      });
+      if (currentState.onExit){
+        currentState.onExit(self).then(enterNewState);
+      } else {
+        enterNewState();
+      }
+      
     };
   };
 
