@@ -1,3 +1,4 @@
+/* global keypress */
 var video = angular.module('video', []);
 
 video.controller('GameCtrl', function(){
@@ -5,14 +6,47 @@ video.controller('GameCtrl', function(){
 });
 
 
-video.directive('screen', function(){
+video.factory('keyboard', function(){
+
+
+
+
+  return {
+    init: function(scope){
+      keypress.combo('d', function() {
+        scope.position.x += 1;
+        scope.$apply();
+      });
+
+
+
+    }
+  };
+
+
+});
+
+
+
+video.directive('screen', function(keyboard){
 
   return {
     replace: true,
     template: '<canvas></canvas>',
     link: function(scope, element, atrts){
-      var ctx = element[0].getContext('2d');
-      ctx.fillRect(20, 20, 100, 100);
+      scope.position = {
+        x: 0
+      };
+      var canvas = element[0];
+      var ctx = canvas.getContext('2d');
+      
+      keyboard.init(scope);
+      scope.$watch('position.x', function(){
+        console.log('asd');
+        canvas.width = canvas.width;
+        ctx.fillRect(scope.position.x, 20, 100, 100);
+    
+      });
     }
   };
 });
