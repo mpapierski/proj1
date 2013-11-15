@@ -27,7 +27,7 @@ video.factory('keyboard', function(){
 });
 
 
-video.directive('screen', function(keyboard){
+video.directive('screen', function(keyboard, engine){
 
   return {
     replace: true,
@@ -37,14 +37,16 @@ video.directive('screen', function(keyboard){
         x: 0
       };
       var canvas = element[0];
-      var ctx = canvas.getContext('2d');
-      
-      keyboard.init(scope);
-      scope.$watch('position.x', function(){
-        console.log('asd');
-        canvas.width = canvas.width;
-        ctx.fillRect(scope.position.x, 20, 100, 100);
-      });
+      var e = new engine();
+      e.init(canvas);
+      //var ctx = canvas.getContext('2d');
+      //
+      //keyboard.init(scope);
+      //scope.$watch('position.x', function(){
+      //  console.log('asd');
+      //  canvas.width = canvas.width;
+      //  ctx.fillRect(scope.position.x, 20, 100, 100);
+      //});
     }
   };
 });
