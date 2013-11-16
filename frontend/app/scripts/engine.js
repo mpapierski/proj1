@@ -1,8 +1,7 @@
-var engine = angular.module('engine', []);
+var engine = angular.module('engine', ['background']);
 
-engine.factory('engine', function() {
+engine.factory('engine', function(background) {
   return function() {
-
     var self = this;
     self.objects = [];
     self.el = null; // canvas dom
@@ -20,7 +19,12 @@ engine.factory('engine', function() {
       self.ctx = self.el.getContext('2d');
       self.buffer = self.createCanvas(640, 480);
       self.bufferCtx = self.buffer.getContext('2d');
-      window.requestAnimationFrame(self.loop);
+      self.background = new background();
+      self.background.init()
+        .then(function() {
+          console.log('background done')
+          window.requestAnimationFrame(self.loop);  
+        });
     };
 
     var old = null;
@@ -32,10 +36,15 @@ engine.factory('engine', function() {
         old = timestamp;
         return;
       }
+
+      // draw bkgrnd
+      self.bufferCtx.drawImage(self.background.canvas, 0, 0);
+
       self.objects.forEach(function(obj) {
         obj.onDraw(self.bufferCtx, timestamp - old);
         obj.onTick(self.bufferCtx, timestamp - old);
       });
+      self.background.onTick();
       old = timestamp;
       self.ctx.drawImage(self.buffer, 0, 0);
     };

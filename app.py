@@ -1,4 +1,5 @@
 import os
+import random
 import glob
 from flask import Flask, json, abort, render_template, request
 from flask.ext.mongoengine import MongoEngine
@@ -37,9 +38,6 @@ class User(db.Document, UserMixin):
 class Room(db.Document):
   title = db.StringField(max_length=100)
   content = db.DictField()
-  def to_json(self):
-    return {'title': self.title,
-      'content': self.content}
 
 class MapData(db.Document):
   map_name = db.StringField()
@@ -58,19 +56,19 @@ def home():
 
 @app.route('/api/room/', methods=['GET'])
 def get_room_list():
-  return json.dumps([room.to_json() for room in Room.objects])
+  return Room.objects.to_json()
 
 @app.route('/api/room/', methods=['POST'])
 def post_room_list():
   data = request.json
   room = Room(title=data['title'], content=data['content'])
   room.save()
-  return json.dumps(room.to_json())
+  return room.to_json()
 
 @app.route('/api/room/<title>/', methods=['GET'])
 def get_room(title):
   rooms = Room.objects(title=title)
-  if rooms: return json.dumps(rooms[0].to_json())
+  if rooms: return rooms[0].to_json()
   abort(404)
 
 @app.route('/api/room/<title>/', methods=['PUT'])
@@ -82,7 +80,14 @@ def put_room(title):
   room = rooms[0]
   room.content = request.json['content']
   room.save()
-  return json.dumps(room.to_json())
+  return room.to_json()
+
+@app.route('/api/maps/random/', methods=['GET'])
+def get_random_map():
+  if not Room.objects:
+    abort(404)
+  m = random.choice(MapData.objects)
+  return m.to_json()
 
 # Manager
 
@@ -114,11 +119,14 @@ def import_maps():
     with open(filename) as input_file:
       v = json.loads(input_file.read())
       mapdata, created = MapData.objects.get_or_create(
-	map_name=v['map_name'],
-	defaults={
-	  'start': v['start'],
-	  'tiles': v['tiles']
-	})
+        map_name=v['map_name'],
+        defaults={
+          'start': v['start'],
+          'tiles': v['tiles']
+        })
+      mapdata.start = v['start']
+      mapdata.tiles = v['tiles']
       mapdata.save()
+
 if __name__ == '__main__':
   manager.run()
