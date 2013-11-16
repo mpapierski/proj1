@@ -54,8 +54,13 @@ background.factory('background', function($http, $q) {
       return dfd.promise;
     }
     self.moveRight = function() {
-      //console.log('move right');
       self.direction = 'left';
+    }
+    self.moveLeft = function() {
+      self.direction = 'right'
+    }
+    self.moveRight = function() {
+      self.direction = 'left'
     }
     self.setPosition = function(x, y) {
       self.offx = x;
@@ -93,6 +98,18 @@ background.factory('background', function($http, $q) {
           self.drawOffX = self.acc;
           self.direction = '';
           self.offx += 1;
+          self.draw();
+        }
+      }
+      else if (self.direction == 'right')
+      {
+        self.drawOffX += self.acc;
+        if (self.drawOffX > 48)
+        {
+          self.drawOffX = self.acc;
+          self.direction = '';
+          self.offx -= 1;
+          self.direction = '';
           self.draw();
         }
       }
