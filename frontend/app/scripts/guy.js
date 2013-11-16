@@ -557,6 +557,17 @@ guyModule.factory('Guy', function($q, states, $timeout){
         
       }
       doDraw(self.currentAnim, self.x, self.y, Math.PI*0.5);
+
+      ctx.beginPath();
+      // draw ziomeczek's head
+      ctx.arc(self.x, self.y - 15, 8, 0, 2 * Math.PI, false);
+      ctx.arc(self.x - 3, self.y - 16, 2, 0, 2 * Math.PI, false);
+      ctx.arc(self.x + 3, self.y - 16, 2, 0, 2 * Math.PI, false);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#003300';
+      ctx.stroke();
     };
   };
 
