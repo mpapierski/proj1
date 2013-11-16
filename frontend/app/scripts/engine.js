@@ -13,17 +13,20 @@ engine.factory('engine', function() {
       canvas.height = height;
 
       return canvas;
-    }
+    };
+
     self.init = function(el) {
       self.el = el;
       self.ctx = self.el.getContext('2d');
       self.buffer = self.createCanvas(640, 480);
       self.bufferCtx = self.buffer.getContext('2d');
       window.requestAnimationFrame(self.loop);
-    }
+    };
+
     var old = null;
     self.loop = function(timestamp) {
       self.buffer.width = self.buffer.width;
+      self.el.width = self.el.width;
       window.requestAnimationFrame(self.loop);
       if (old === null) {
         old = timestamp;
@@ -35,7 +38,7 @@ engine.factory('engine', function() {
       });
       old = timestamp;
       self.ctx.drawImage(self.buffer, 0, 0);
-    }
+    };
   }
 });
 

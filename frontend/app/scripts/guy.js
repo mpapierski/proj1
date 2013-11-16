@@ -242,16 +242,22 @@ guyModule.factory('moveStates', function(){
     right: {
       onEnter: function(sender){
         sender.acc.x += sender.acc.factor * 1;
+        sender._movingRight = true;
         var counter = 0;
-        function x(){
+        function scheduleAnimation(){
+          if (!sender._movingRight){
+            return;
+          };
           var target = counter % 2 ? runRight1 : runRight2;
           counter +=1;
-          sender.animate(target).then(x);
+          sender.animate(target).then(scheduleAnimation);
         }
-        x();
+        scheduleAnimation();
       },
 
       onExit: function(sender){
+        delete sender._movingRight;
+        sender.stopAnimation();
         sender.acc.x -= sender.acc.factor * 1;
       },
 
@@ -338,13 +344,11 @@ guyModule.factory('Guy', function($q, states, $timeout){
 
     function doAnimate(delta){
       
-      self.animDone += delta / 500;
+      self.animDone += delta / 5000;
 
       animInternal(self.currentAnim, self.previousAnim, self.targetAnim, self.animDone);
       
       if (self.animDone >= 1){
-        self.currentAnim = self.targetAnim;
-        self.previousAnim = self.targetAnim;
         self.animDone = 0;
         if (self.animDfd){
           self.animDfd.resolve();
@@ -354,9 +358,16 @@ guyModule.factory('Guy', function($q, states, $timeout){
     }
 
     self.animate = function(targetAnim){
+      self.previousAnim = self.currentAnim;
       self.animDfd = $q.defer();
       self.targetAnim = targetAnim;
       return self.animDfd.promise;
+    };
+
+    self.stopAnimation = function(){
+      self.targetAnim = self.currentAnim;
+      self.animDone = 0;
+      self.animDfd.resolve();
     };
 
     self.states = {
