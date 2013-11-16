@@ -96,17 +96,19 @@ def get_random_map():
 @app.route('/api/lobby/', methods=['GET'])
 @login_required
 def get_lobby():
-  lobby = Lobby.objects(last_action__lte=datetime.now() - timedelta(seconds=1 * 60))
+  lobby = Lobby.objects(last_action__gte=datetime.now() - timedelta(seconds=1 * 60))
   return lobby.to_json()
 
 @app.route('/api/lobby/', methods=['POST'])
 def post_lobby():
   now = datetime.now()
-  lobby, created = Lobby.objects.get_object_or_404(user=core.current_user,
+  lobby, created = Lobby.objects.get_or_create(user=core.current_user.get_id(),
     defaults={'last_action': now})
   lobby.last_action = now
   lobby.save()
-  return lobby.to_json()
+  return json.dumps({
+    'online': len(Lobby.objects(last_action__gte=datetime.now() - timedelta(seconds=1 * 60)))
+  })
 
 # Manager
 
