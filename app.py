@@ -6,7 +6,6 @@ from flask.ext.mongoengine import MongoEngine
 from flask.ext.security import Security, MongoEngineUserDatastore, \
     UserMixin, RoleMixin, login_required
 from flask.ext.script import Manager, Server, prompt, prompt_pass
-from flask.ext import restful
 
 app = Flask(__name__, static_folder='frontend/app', static_url_path='/static')
 app.debug = os.getenv('DEBUG')
