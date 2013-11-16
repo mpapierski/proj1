@@ -1,10 +1,11 @@
 import os
 import random
 import glob
+from datetime import datetime, timedelta
 from flask import Flask, json, abort, render_template, request
 from flask.ext.mongoengine import MongoEngine
 from flask.ext.security import Security, MongoEngineUserDatastore, \
-    UserMixin, RoleMixin, login_required
+    UserMixin, RoleMixin, login_required, core
 from flask.ext.script import Manager, Server, prompt, prompt_pass
 
 app = Flask(__name__, static_folder='frontend/app', static_url_path='/static')
@@ -42,6 +43,10 @@ class MapData(db.Document):
   map_name = db.StringField()
   start = db.ListField() # (x, y)
   tiles = db.DynamicField()
+
+class Lobby(db.Document):
+  user = db.ReferenceField(User)
+  last_action = db.DateTimeField()
 
 # Setup Flask-Security
 user_datastore = MongoEngineUserDatastore(db, User, Role)
@@ -87,6 +92,21 @@ def get_random_map():
   #   abort(404)
   m = random.choice(MapData.objects)
   return m.to_json()
+
+@app.route('/api/lobby/', methods=['GET'])
+@login_required
+def get_lobby():
+  lobby = Lobby.objects(last_action__lte=datetime.now() - timedelta(seconds=1 * 60))
+  return lobby.to_json()
+
+@app.route('/api/lobby/', methods=['POST'])
+def post_lobby():
+  now = datetime.now()
+  lobby, created = Lobby.objects.get_object_or_404(user=core.current_user,
+    defaults={'last_action': now})
+  lobby.last_action = now
+  lobby.save()
+  return lobby.to_json()
 
 # Manager
 

@@ -160,10 +160,14 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
         if (scope.player.acc.x == 0)
         {
           e.background.direction = null;
-        }else
-        if (scope.player.x >= 300)
+        }
+        else if (scope.player.x > 640 - 48)
         {
           e.background.moveRight();
+        }
+        else if (scope.player.x < 48)
+        {
+          e.background.moveLeft();
         }
         origin(ctx, delta);
       };
