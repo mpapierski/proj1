@@ -34,23 +34,17 @@ function Bullet(){
     self.life -= timedelta;
 
   };
-
 }
-function spawnBullets(count){
-  var rv = [];
-  var i;
-  for (i = 0; i <= count; i++){
-    rv.push(new Bullet());
-  }
-  return rv;
 
-}
+
+
 engine.factory('engine', function(background) {
   return function() {
     var self = this;
     self.backgrounds = [];
     self.objects = [];
     self.bullets = spawnBullets(100);
+    self.statics = [];
     self.el = null; // canvas dom
     self.createCanvas = function(width, height) {
       var canvas = document.createElement('canvas');
@@ -101,7 +95,9 @@ engine.factory('engine', function(background) {
         obj.onDraw(self.bufferCtx, timestamp - old);
         obj.onTick(self.bufferCtx, timestamp - old);
       });
-
+      self.statics.forEach(function(obj) {
+        obj.onDraw(self.bufferCtx, timestamp - old);
+      });
       self.bullets.forEach(function(obj) {
         obj.onDraw(self.bufferCtx, timestamp - old);
         obj.onTick(self.bufferCtx, timestamp - old);
@@ -133,10 +129,16 @@ engine.factory('engine', function(background) {
       }
       return chosenBullet;
     }
-
+    function selectClosest(source, objs){
+      return _.min(objs, function(obj){
+        return Math.sqrt(Math.pow(Math.abs(obj.x - source.x), 2) + Math.pow(Math.abs(obj.y - source.y), 2));
+      }); 
+    }
     function chooseTarget(tan, source){
+      var chosenTargets = [];
       var chosenTarget;
       var i, obj, targetTan;
+
       for (i = 0; i <= self.objects.length; i++){
         obj = self.objects[i];
         if (source === obj || !obj){
@@ -144,12 +146,27 @@ engine.factory('engine', function(background) {
         }
         targetTan = Math.atan2(obj.y - source.y, obj.x - source.x);
         if (Math.abs(targetTan - tan) < 0.07){
-          chosenTarget = obj;
-          break;
+          chosenTargets.push(obj);
         }
       }
+
+      for (i = 0; i <= self.statics.length; i++){
+        obj = self.statics[i];
+        if (source === obj || !obj){
+          continue
+        }
+        targetTan = Math.atan2(obj.y - source.y, obj.x - source.x);
+        if (Math.abs(targetTan - tan) < 0.15){
+          chosenTargets.push(obj);
+        }
+      }
+
+
       var dist = 10000;
-      if (chosenTarget){
+
+      if (chosenTargets.length){
+
+        chosenTarget = selectClosest(source, chosenTargets);
         chosenTarget.onMessage({
           type: 'hit',
           power: source.weapon.power

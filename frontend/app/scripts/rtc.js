@@ -144,12 +144,6 @@ rtc.factory('server', function(){
         }
     };
 
-
-
-
-
-
-
   };
 
 });

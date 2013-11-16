@@ -1,6 +1,53 @@
 'use strict';
 
 
+function Block(){
+  var self = this;
+  self.x = Math.random() * 600;
+  self.y = Math.random() * 400;
+  self.w = 30;
+  self.h = 40;
+  this.onDraw = function(ctx, timedelta){
+    if (self.life <= 0){
+      return;
+    }
+
+    ctx.fillRect(self.x, self.y, self.w, self.h);
+    ctx.stroke();
+  };
+
+  this.onTick = function(ctx, timedelta){
+    if (self.life <= 0){
+      return;
+    }
+    self.life -= timedelta;
+
+  };
+  this.onMessage = function(){};
+
+}
+
+function spawnBullets(count){
+  var rv = [];
+  var i;
+  for (i = 0; i <= count; i++){
+    rv.push(new Bullet());
+  }
+  return rv;
+
+}
+
+
+
+function spawnStatics(count){
+  var rv = [];
+  var i;
+  for (i = 0; i <= count; i++){
+    rv.push(new Block());
+  }
+  return rv;
+}
+
 
 var app = angular.module('app', [
   'ngResource',
@@ -18,10 +65,20 @@ function setupComm($scope, Guy){
       return;
     }
     channel = newChannel;
+    var statics = [];
+    $scope.engine.statics.forEach(function(s){
+      statics.push({
+        x: s.x,
+        w: s.w,
+        h: s.h,
+        y: s.y
+      });
+    });
     channel.send(JSON.stringify({
       data: 'connected', 
       x: $scope.player.x,
       y: $scope.player.y,
+      statics: statics
     }));
     channel.onmessage = function(msg){
       msg = JSON.parse(msg.data);
@@ -30,6 +87,14 @@ function setupComm($scope, Guy){
         $scope.enemy.x = msg.x;
         $scope.enemy.y = msg.y;
         $scope.engine.objects.push($scope.enemy);
+        msg.statics.forEach(function(s){
+          var b = new Block();
+          b.x = s.x;
+          b.y = s.y;
+          b.h= s.h;
+          b.w = s.w;
+          $scope.engine.statics.push(b);
+        });
       }
       if (msg.data == 'event'){
         $scope.enemy.onMessage(msg.msg);
@@ -40,13 +105,21 @@ function setupComm($scope, Guy){
       }
     }
   });
+
   $scope.$on('event', function(evt, data){
+    if (!$scope.channel){
+      return;
+    }
     $scope.channel.send(JSON.stringify({
       data: 'event',
       msg: data
     }));
   });
+
   $scope.$on('move', function(evt, data){
+    if (!$scope.channel){
+      return;
+    }
     $scope.channel.send(JSON.stringify({
       data: 'move',
       msg: data
@@ -63,9 +136,15 @@ var ClientCtrl = function($scope, server, client, $http, $state, Guy){
 };
 var MainCtrl = function(){};
 
+
 var ServerCtrl = function($scope, client, $http, Guy, $state, $timeout){
   client($scope);
   var channel;
+
+  $scope.$watch('engine', function(e){
+    e.statics = spawnStatics(10);
+  });
+
   setupComm($scope, Guy);
   var stop = $timeout(function() {
     console.log('timeout')
