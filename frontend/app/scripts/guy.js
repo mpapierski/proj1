@@ -449,7 +449,12 @@ guyModule.factory('Guy', function($q, states, $timeout){
     self.targetAnim = idlePoints;
     self.animDone = 0;
     self.animDfd = null;
-
+    function random(){
+      var a = '' + Math.random() * 255;
+      return parseInt(a, 10);
+    }
+    self.c = 'rgb('+ random() +  ', '+ random() +  ', '+ random()  +  ')';
+    console.log(self.c);
     function animInternal(currentAnim, previousAnim, targetAnim, animDone){
       _.each(_.zip(currentAnim, previousAnim, targetAnim), function(objs){
         var current = objs[0];
@@ -544,6 +549,9 @@ guyModule.factory('Guy', function($q, states, $timeout){
     };
 
     self.onDraw = function(ctx, timedelta){
+      ctx.fillStyle = self.c;
+      ctx.strokeStyle = self.c;
+  
       function doDraw(points, x, y, angle){
         points.forEach(function(point){
           var drawAngle = angle + point.angle;
@@ -577,6 +585,9 @@ guyModule.factory('Guy', function($q, states, $timeout){
       ctx.beginPath();
       ctx.arc(self.x, self.y - 12, 3, 0, 1 * Math.PI, false); // smile
       ctx.stroke();
+      ctx.fillStyle = 'rgb(0,0,0)';
+      ctx.strokeStyle = 'rgb(0,0,0)';
+  
     };
   };
 

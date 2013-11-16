@@ -34,7 +34,7 @@ rtc.factory('client', function(){
           reliable: false
       });
       window.channel = answererDataChannel;
-      var ws = new WebSocket('ws://127.0.0.1:5001');
+      var ws = new WebSocket('ws://10.254.1.122:5001');
 
 
       ws.onmessage = function(msg){
@@ -92,7 +92,7 @@ rtc.factory('server', function(){
 
 
   return function createServer(scope){
-    var ws = new WebSocket('ws://127.0.0.1:5001');
+    var ws = new WebSocket('ws://10.254.1.122:5001');
     var serverScope = scope.$new();
     var server;
 
