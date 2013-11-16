@@ -96,8 +96,11 @@ video.directive('screen', function(keyboard, engine, Guy){
       var e = new engine();
       e.init(canvas);
       scope.player = new Guy();
+      // scope.player2 = new Guy();
+      // scope.player2.x = 400;
       keyboard.init(scope.player);
       e.objects.push(scope.player);
+      // e.objects.push(scope.player2);
     }
   };
 });
