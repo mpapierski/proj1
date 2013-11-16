@@ -37,14 +37,15 @@ background.factory('background', function($http, $q) {
         self.mapdata = data;
         self.createMapBuffer();
         self.draw();
-        dfd.resolve(self);
+        setTimeout(function() { dfd.resolve(self); }, 1000);
       }).error(function(data) {
         dfd.reject(data);
       });
       return dfd.promise;
     }
     self.moveRight = function() {
-      self.offx += 1;
+      console.log('move right');
+      self.direction = 'left';
     }
     self.setPosition = function(x, y) {
       self.offx = x;
@@ -57,9 +58,10 @@ background.factory('background', function($http, $q) {
       self.ctx = self.canvas.getContext('2d');
     }
     self.draw = function() {
-      for (var i = self.offx - 1; i < 21; i++)
+      self.canvas.width = self.canvas.width;
+      for (var i = self.offx - 1; i < self.offx + 21; i++)
       {
-        for (var j = self.offy -1; j < 10; j++)
+        for (var j = self.offy; j < self.offy + 10; j++)
         {
           var tileNumbers = self.mapdata.tiles[j];
           if (tileNumbers)
@@ -70,8 +72,7 @@ background.factory('background', function($http, $q) {
               self.ctx.fillStyle = "blue";
               self.ctx.font = "bold 12px Arial";
               self.ctx.fillText((i * 48) + ' ' + (j * 48), i * 48, j * 48);
-              self.ctx.drawImage(tilesDb[tileNumber], i * 48, j * 48);
-
+              self.ctx.drawImage(tilesDb[tileNumber], (i - self.offx) * 48, (j - self.offy) * 48);
             }
           }
         }
@@ -83,6 +84,9 @@ background.factory('background', function($http, $q) {
         if (self.drawOffX < -48)
         {
           self.drawOffX = 0;
+          self.direction = '';
+          self.offx += 1;
+          self.draw();
         }
       }
     }

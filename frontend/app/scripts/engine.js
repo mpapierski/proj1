@@ -29,7 +29,6 @@ engine.factory('engine', function(background) {
           console.log('background done')
           window.requestAnimationFrame(self.loop);  
         });
-      window.requestAnimationFrame(self.loop);
     };
 
     var old = null;
@@ -45,7 +44,7 @@ engine.factory('engine', function(background) {
       }
 
       // draw bkgrnd
-      self.bufferCtx.drawImage(self.background.canvas, 0, 0);
+      self.bufferCtx.drawImage(self.background.canvas, self.background.drawOffX, 0);
 
       self.backgrounds.forEach(function(obj) {
         obj.onDraw(self.backgroundCtx, timestamp - old);
