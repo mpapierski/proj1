@@ -14,7 +14,7 @@ video.factory('keyboard', function(){
 
 
   return {
-    init: function(player){
+    init: function(player, scope){
 
       var keys = [
         {
@@ -24,9 +24,15 @@ video.factory('keyboard', function(){
             player.onMessage({
               type: 'right'
             });
+            scope.$emit('event', {
+              type: 'right'
+            });
           },
           on_keyup: function(){
             player.onMessage({
+              type: 'release_right'
+            });
+            scope.$emit('event', {
               type: 'release_right'
             });
           }
@@ -38,9 +44,15 @@ video.factory('keyboard', function(){
             player.onMessage({
               type: 'left'
             });
+            scope.$emit('event', {
+              type: 'left'
+            });
           },
           on_keyup: function(){
             player.onMessage({
+              type: 'release_left'
+            });
+            scope.$emit('event', {
               type: 'release_left'
             });
           }
@@ -52,9 +64,15 @@ video.factory('keyboard', function(){
             player.onMessage({
               type: 'up'
             });
+            scope.$emit('event', {
+              type: 'up'
+            });
           },
           on_keyup: function(){
             player.onMessage({
+              type: 'release_up'
+            });
+            scope.$emit('event', {
               type: 'release_up'
             });
           }
@@ -66,9 +84,15 @@ video.factory('keyboard', function(){
             player.onMessage({
               type: 'down'
             });
+            scope.$emit('event', {
+              type: 'down'
+            });
           },
           on_keyup: function(){
             player.onMessage({
+              type: 'release_down'
+            });
+            scope.$emit('event', {
               type: 'release_down'
             });
           }
@@ -100,13 +124,23 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
           type: 'fire'
         });
 
+        scope.$emit('event', {
+          type: 'fire'
+        });
         element.bind('mousemove', function(evt){
           scope.player.weapon.x = evt.clientX;
           scope.player.weapon.y = evt.clientY;
+          scope.$emit('move', {
+            x: evt.clientX,
+            y: evt.clientY
+          });
         });
 
         $document.bind('mouseup', function(evt){
           scope.player.onMessage({
+            type: 'stopFiring'
+          });
+          scope.$emit('event', {
             type: 'stopFiring'
           });
           element.unbind('mousemove');
@@ -117,11 +151,9 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
       
       var canvas = element[0];
       var e = new engine();
-      e.init(canvas);
+      e.init(canvas, scope);
       scope.player = new Guy(e);
-      // scope.player.x = scope.player.y = 0;
-      scope.player2 = new Guy();
-      scope.player2.x = 400;
+
       var origin = scope.player.onTick;
       scope.player.onTick = function(ctx, delta) {
         e.background.acc = 2;
@@ -139,9 +171,11 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
         }
         origin(ctx, delta);
       };
-      keyboard.init(scope.player);
+      keyboard.init(scope.player, scope);
       e.objects.push(scope.player);
-      e.objects.push(scope.player2);
+
+
+      scope.engine = e;
     }
   };
 });

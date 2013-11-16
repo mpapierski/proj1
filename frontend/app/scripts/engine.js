@@ -61,8 +61,9 @@ engine.factory('engine', function(background) {
       return canvas;
     };
 
-    self.init = function(el) {
+    self.init = function(el, scope) {
       self.el = el;
+      self.scope = scope;
       self.buffer = self.createCanvas(640, 480);
       self.backgroundCanvas = self.createCanvas(640, 480);
 
