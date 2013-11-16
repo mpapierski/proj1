@@ -94,15 +94,25 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
       };
 
       element.bind('mousedown', function(evt){
+        scope.player.weapon.x = evt.clientX;
+        scope.player.weapon.y = evt.clientY;
         scope.player.onMessage({
           type: 'fire'
         });
-        var canceller = $document.bind('mouseup', function(evt){
+
+        element.bind('mousemove', function(evt){
+          scope.player.weapon.x = evt.clientX;
+          scope.player.weapon.y = evt.clientY;
+        });
+
+        $document.bind('mouseup', function(evt){
           scope.player.onMessage({
             type: 'stopFiring'
           });
+          element.unbind('mousemove');
           $document.unbind('mouseup');
         });
+
       });
       
       var canvas = element[0];

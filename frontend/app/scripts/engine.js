@@ -6,12 +6,23 @@ function Bullet(){
   var self = this;
   this.life = 0;
   self.sx = self.sy = self.dx = self.dy = 0;
+
+  this.setTarget = function(source, dest){
+    var tan = Math.atan2(dest.y - source.y, dest.x - source.x);
+    self.sx = source.x;
+    self.sy = source.y;
+    self.life = 500;
+    self.dx = source.x + Math.cos(tan) * 2000;
+    self.dy = source.y + Math.sin(tan) * 2000;
+  }
+
   this.onDraw = function(ctx, timedelta){
     if (self.life <= 0){
       return;
     }
     ctx.beginPath();
     ctx.moveTo(self.sx, self.sy);
+
     ctx.lineTo(self.dx, self.dy);
     ctx.closePath();
     ctx.stroke();
@@ -91,6 +102,11 @@ engine.factory('engine', function(background) {
         obj.onTick(self.bufferCtx, timestamp - old);
       });
 
+      self.bullets.forEach(function(obj) {
+        obj.onDraw(self.bufferCtx, timestamp - old);
+        obj.onTick(self.bufferCtx, timestamp - old);
+      });
+
       self.background.onTick();
       old = timestamp;
       self.ctx.drawImage(self.backgroundCanvas, 0, 0);
@@ -121,12 +137,9 @@ engine.factory('engine', function(background) {
 
     self.fireBullet = function(source, aim){
       var bullet = chooseBullet();
-      bullet.life = 1000;
-      bullet.sx = source.x;
-      bullet.sy = source.y;
-      bullet.dx = aim.x;
-      bullet.dy = aim.y;
+      
+      bullet.setTarget(source, aim);
     };
 
-  }
+  };
 });
