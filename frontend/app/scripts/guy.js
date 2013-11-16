@@ -455,6 +455,9 @@ guyModule.factory('Guy', function($q, states, $timeout){
         var current = objs[0];
         var previous = objs[1];
         var target = objs[2];
+        if (!previous || !target) {
+          return;
+        }
         current.length = previous.length * (1 - self.animDone) + target.length * self.animDone;
         current.angle = previous.angle * (1 - self.animDone) + target.angle * self.animDone;
 
