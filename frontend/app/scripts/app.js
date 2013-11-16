@@ -63,16 +63,13 @@ var ClientCtrl = function($scope, server, client, $http, $state, Guy){
 };
 var MainCtrl = function(){};
 
-var ServerCtrl = function($scope, client, $http, Guy, $state, $timeout){
+var ServerCtrl = function($scope, client, $http, Guy, $state, $interval){
   client($scope);
   var channel;
   setupComm($scope, Guy);
-  var stop = $timeout(function() {
+  var stop = $interval(function() {
     console.log('timeout')
-    $http.post({
-      url: '/api/lobby/',
-      data: {}
-    }).success(function(data) {
+    $http.post('/api/lobby/').success(function(data) {
       console.log('sent', data);
     });
   }, 1000);
