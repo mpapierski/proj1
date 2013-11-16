@@ -92,9 +92,19 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
       scope.position = {
         x: 0
       };
-      element.bind('mousedown', function(evt){
 
+      element.bind('mousedown', function(evt){
+        scope.player.onMessage({
+          type: 'fire'
+        });
+        var canceller = $document.bind('mouseup', function(evt){
+          scope.player.onMessage({
+            type: 'stopFiring'
+          });
+          $document.unbind('mouseup');
+        });
       });
+      
       var canvas = element[0];
       var e = new engine();
       e.init(canvas);

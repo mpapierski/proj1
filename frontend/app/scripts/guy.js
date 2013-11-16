@@ -418,7 +418,7 @@ guyModule.factory('Guy', function($q, states, $timeout){
     self.states = {
       moving: states.moving.idle,
       hp: states.hp.normal,
-      weapon: weapon.states.idle
+      weapon: states.weapon.idle
     };
     self.x = 200;
     self.size = 3;
