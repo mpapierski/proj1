@@ -18,28 +18,40 @@ function setupComm($scope, Guy){
       return;
     }
     channel = newChannel;
-    channel.send(JSON.stringify({data: 'connected'}));
+    channel.send(JSON.stringify({
+      data: 'connected', 
+      x: $scope.player.x,
+      y: $scope.player.y,
+    }));
     channel.onmessage = function(msg){
       msg = JSON.parse(msg.data);
       if (msg.data === 'connected'){
-        $scope.enemy = new Guy($scope.e);
-        $scope.enemy.x = 400;
+        $scope.enemy = new Guy($scope.engine);
+        $scope.enemy.x = msg.x;
+        $scope.enemy.y = msg.y;
         $scope.engine.objects.push($scope.enemy);
       }
-      if (msg.data == 'keyboard'){
-        $scope.enemy.onMessage({
-          type: msg.type
-        });
+      if (msg.data == 'event'){
+        $scope.enemy.onMessage(msg.msg);
+      }
+      if (msg.data == 'move' && $scope.enemy){
+        $scope.enemy.weapon.x = msg.msg.x;
+        $scope.enemy.weapon.y = msg.msg.y;
       }
     }
   });
-  $scope.$on('keyboard', function(evt, data){
+  $scope.$on('event', function(evt, data){
     $scope.channel.send(JSON.stringify({
-      data: 'keyboard',
-      type: 'right'
+      data: 'event',
+      msg: data
     }));
-  })
-
+  });
+  $scope.$on('move', function(evt, data){
+    $scope.channel.send(JSON.stringify({
+      data: 'move',
+      msg: data
+    }));
+  });
 
 }
 var ClientCtrl = function($scope, server, client, $http, $state, Guy){
@@ -76,5 +88,3 @@ app.config(function($stateProvider){
     template: '<canvas screen></canvas>'
   });
 });
-
-
