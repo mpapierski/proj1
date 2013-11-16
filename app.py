@@ -9,7 +9,7 @@ from flask.ext.script import Manager, Server, prompt, prompt_pass
 
 app = Flask(__name__, static_folder='frontend/app', static_url_path='/static')
 app.debug = os.getenv('DEBUG')
-app.config["MONGODB_SETTINGS"] = {'DB': "proj"}
+app.config["MONGODB_SETTINGS"] = {'DB': "proj", 'HOST': '10.254.31.115'}
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = 'super-secret'
 
@@ -83,8 +83,8 @@ def put_room(title):
 
 @app.route('/api/maps/random/', methods=['GET'])
 def get_random_map():
-  if not Room.objects:
-    abort(404)
+  # if not Room.objects:
+  #   abort(404)
   m = random.choice(MapData.objects)
   return m.to_json()
 
