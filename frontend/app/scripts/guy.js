@@ -380,11 +380,30 @@ guyModule.factory('hpStates', function(){
 
 });
 
-guyModule.factory('states', function(moveStates, hpStates){
+guyModule.factory('weaponStates', function(){
+
+  return {
+    idle: {
+      fire: function(sender){
+        sender.transitionTo('weapon', 'firing');
+      }
+    },
+    firing: {
+      stopFiring: function(sender){
+        sender.transitionTo('weapon', 'idle');
+      }
+    }
+  };
+
+});
+
+
+guyModule.factory('states', function(moveStates, hpStates, weaponStates){
 
   return {
     moving: moveStates,
-    hp: hpStates
+    hp: hpStates,
+    weapon: weaponStates
   };
 
 });
@@ -395,12 +414,17 @@ guyModule.factory('Guy', function($q, states, $timeout){
 
   return function Guy(){
     var self = this;
-
     self.hp = 100;
+    self.states = {
+      moving: states.moving.idle,
+      hp: states.hp.normal,
+      weapon: weapon.states.idle
+    };
     self.x = 200;
+    self.size = 3;
     self.y = 200;
     self.acc = {
-      factor: 0.01,
+      factor: 0.1,
       x: 0,
       y: 0
     };
@@ -455,10 +479,6 @@ guyModule.factory('Guy', function($q, states, $timeout){
       self.animDfd.resolve();
     };
 
-    self.states = {
-      moving: states.moving.idle,
-      hp: states.hp.normal
-    };
 
     self.onMessage = function(msg){
       var k;
@@ -498,13 +518,14 @@ guyModule.factory('Guy', function($q, states, $timeout){
       function doDraw(points, x, y, angle){
         points.forEach(function(point){
           var drawAngle = angle + point.angle;
-          var newX = x + Math.cos(drawAngle) * point.length * 20;
-          var newY = y + Math.sin(drawAngle) * point.length * 20;
+          var newX = x + Math.cos(drawAngle) * point.length * self.size;
+          var newY = y + Math.sin(drawAngle) * point.length * self.size;
 
           ctx.beginPath();
           ctx.moveTo(x, y);
           ctx.lineTo(newX, newY);
           ctx.stroke();
+
           if (point.children){
             doDraw(point.children, newX, newY, drawAngle);
           }

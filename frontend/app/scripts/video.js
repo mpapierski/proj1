@@ -83,7 +83,7 @@ video.factory('keyboard', function(){
 
 });
 
-video.directive('screen', function(keyboard, engine, Guy){
+video.directive('screen', function(keyboard, engine, Guy, $document){
 
   return {
     replace: true,
@@ -92,6 +92,9 @@ video.directive('screen', function(keyboard, engine, Guy){
       scope.position = {
         x: 0
       };
+      element.bind('mousedown', function(evt){
+
+      });
       var canvas = element[0];
       var e = new engine();
       e.init(canvas);
