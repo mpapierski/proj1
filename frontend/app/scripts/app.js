@@ -180,7 +180,7 @@ app.config(function($stateProvider){
   $stateProvider.state('client',{
     url: '/client',
     controller: ClientCtrl,
-    template: '<div><canvas screen></canvas></div>'
+    template: '<div>HP: {{ player.hp }} <canvas screen></canvas></div>'
   });
 
 });

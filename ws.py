@@ -8,7 +8,7 @@ class WS(Protocol):
     def connectionMade(self):
         self.factory.protocols.add(self)
 
-    def connectyionLost(self, reason):
+    def connectionLost(self, reason):
         self.factory.protocols.remove(self)
 
     def dataReceived(self, data):
