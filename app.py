@@ -15,7 +15,7 @@ app.config['SECRET_KEY'] = 'super-secret'
 
 # MongoDB Config
 app.config['MONGODB_DB'] = 'proj'
-app.config['MONGODB_HOST'] = 'localhost'
+app.config['MONGODB_HOST'] = '10.254.31.115'
 app.config['MONGODB_PORT'] = 27017
 
 # Flask-Security
