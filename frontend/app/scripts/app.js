@@ -63,7 +63,7 @@ var ClientCtrl = function($scope, server, client, $http, $state, Guy){
 };
 var MainCtrl = function(){};
 
-var ServerCtrl = function($scope, client, $http, Guy, $state){
+var ServerCtrl = function($scope, client, $http, Guy, $state, $timeout){
   client($scope);
   var channel;
   setupComm($scope, Guy);
