@@ -44,7 +44,35 @@ video.factory('keyboard', function(){
               type: 'release_left'
             });
           }
-        }
+        },
+        {
+          keys: 'w',
+          prevent_repeat: true,
+          on_keydown: function() {
+            player.onMessage({
+              type: 'up'
+            });
+          },
+          on_keyup: function(){
+            player.onMessage({
+              type: 'release_up'
+            });
+          }
+        },
+        {
+          keys: 's',
+          prevent_repeat: true,
+          on_keydown: function() {
+            player.onMessage({
+              type: 'down'
+            });
+          },
+          on_keyup: function(){
+            player.onMessage({
+              type: 'release_down'
+            });
+          }
+        },
       ];
 
     

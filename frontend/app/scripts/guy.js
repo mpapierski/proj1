@@ -231,55 +231,98 @@ var runRight2 = [
 var guyModule = angular.module('guy', []);
 
 
-guyModule.factory('moveStates', function(){
 
-  return {
-    idle: {
-      right: function(sender){
+guyModule.factory('moveStates', function(){
+  var MoveStateBase = function(){
+      this.right = function(sender){
         sender.transitionTo('moving', 'right');
-      }
-    },
-    right: {
+      };
+      this.left = function(sender){
+        sender.transitionTo('moving', 'left');
+      };
+      this.up = function(sender){
+        sender.transitionTo('moving', 'up');
+      };
+      this.down = function(sender){
+        sender.transitionTo('moving', 'down');
+      };
+      this.release_up = function(sender){
+        sender.acc.y += sender.acc.factor * 1;
+      };
+      this.release_down = function(sender){
+        sender.acc.y -= sender.acc.factor * 1;
+      };
+      this.release_left = function(sender){
+        sender.acc.x += sender.acc.factor * 1;
+      };
+      this.release_right = function(sender){
+        sender.acc.x -= sender.acc.factor * 1;
+      };
+  };
+
+  var idle = new MoveStateBase();
+  var right = angular.extend({
       onEnter: function(sender){
         sender.acc.x += sender.acc.factor * 1;
+
         sender._movingRight = true;
         var counter = 0;
         function scheduleAnimation(){
           if (!sender._movingRight){
             return;
-          };
+          }
           var target = counter % 2 ? runRight1 : runRight2;
           counter +=1;
           sender.animate(target).then(scheduleAnimation);
         }
         scheduleAnimation();
+
       },
 
       onExit: function(sender){
         delete sender._movingRight;
         sender.stopAnimation();
-        sender.acc.x -= sender.acc.factor * 1;
-      },
-
-      release_right: function(sender){
-        sender.transitionTo('moving', 'idle');
       }
-    },
+    }, new MoveStateBase());
 
-    left: {
+  var left = angular.extend({
       onEnter: function(sender){
         sender.acc.x -= sender.acc.factor * 1;
       },
+
       onExit: function(sender){
-        sender.acc.x += sender.acc.factor * 1;
+
+      }
+    }, new MoveStateBase());
+
+  var up = angular.extend({
+      onEnter: function(sender){
+        sender.acc.y -= sender.acc.factor * 1;
       },
-      release_left: function(sender){
+      onExit: function(sender){
+      }
+    }, new MoveStateBase());
+
+  var down = angular.extend({
+      onEnter: function(sender){
+        sender.acc.y += sender.acc.factor * 1;
+      },
+      onExit: function(sender){
+      },
+      release_down: function(sender){
         sender.transitionTo('moving', 'idle');
       }
-    }
+    }, new MoveStateBase());
 
+  return {
+      idle: idle,
+      right: right,
+      left: left,
 
-  };
+      up: up,
+      down: down
+    };
+
 
 });
 
@@ -405,8 +448,8 @@ guyModule.factory('Guy', function($q, states, $timeout){
     };
     self.onTick = function(ctx, timedelta){
       self.x += timedelta * self.acc.x;
+      self.y += timedelta * self.acc.y;
       doAnimate(timedelta);
-
     };
 
     self.onDraw = function(ctx, timedelta){
