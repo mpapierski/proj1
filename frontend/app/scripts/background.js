@@ -40,6 +40,7 @@ background.factory('background', function($http, $q) {
     self.drawOffX = 0; // draw background at x + drawOffX for scrolling
     self.offy = 0;
     self.direction = null;
+    self.acc = 0
     self.init = function() {
       var dfd = $q.defer();
       $http.get('/api/maps/random/').success(function(data, status, headers, config) {
@@ -86,10 +87,10 @@ background.factory('background', function($http, $q) {
     }
     self.onTick = function() {
       if (self.direction == 'left') {
-        self.drawOffX -= 1;
+        self.drawOffX -= self.acc;
         if (self.drawOffX < -48)
         {
-          self.drawOffX = 0;
+          self.drawOffX = self.acc;
           self.direction = '';
           self.offx += 1;
           self.draw();

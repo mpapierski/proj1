@@ -126,6 +126,11 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
 
       var origin = scope.player.onTick;
       scope.player.onTick = function(ctx, delta) {
+        e.background.acc = 2;
+        if (scope.player.acc.x == 0)
+        {
+          e.background.direction = null;
+        }else
         if (scope.player.x >= 300)
         {
           e.background.moveRight();

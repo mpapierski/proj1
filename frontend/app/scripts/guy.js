@@ -533,7 +533,9 @@ guyModule.factory('Guy', function($q, states, $timeout){
 
     self.onTick = function(ctx, timedelta){
       self.x += timedelta * self.acc.x;
-      self.y += timedelta * self.acc.y;
+      if (self.x > 640 - 48) self.x = 640 - 48;
+      self.y += timedelta * self.acc.y
+      if (self.y > 480 - 48) self.y = 480 - 48;
       doAnimate(timedelta);
     };
 
