@@ -8,12 +8,11 @@ function Bullet(){
   self.sx = self.sy = self.dx = self.dy = 0;
 
   this.setTarget = function(source, dest){
-    var tan = Math.atan2(dest.y - source.y, dest.x - source.x);
+    self.life = 500;    
     self.sx = source.x;
     self.sy = source.y;
-    self.life = 500;
-    self.dx = source.x + Math.cos(tan) * 2000;
-    self.dy = source.y + Math.sin(tan) * 2000;
+    self.dx = dest.x;
+    self.dy = dest.y;
   }
 
   this.onDraw = function(ctx, timedelta){
@@ -134,11 +133,39 @@ engine.factory('engine', function(background) {
       return chosenBullet;
     }
 
+    function chooseTarget(tan, source){
+      var chosenTarget;
+      var i, obj, targetTan;
+      for (i = 0; i <= self.objects.length; i++){
+        obj = self.objects[i];
+        if (source === obj || !obj){
+          continue
+        }
+        targetTan = Math.atan2(obj.y - source.y, obj.x - source.x);
+        if (Math.abs(targetTan - tan) < 0.07){
+          chosenTarget = obj;
+          break;
+        }
+      }
+      var dist = 10000;
+      if (chosenTarget){
+        dist = Math.sqrt(Math.pow(Math.abs(chosenTarget.x - source.x), 2) + Math.pow(Math.abs(chosenTarget.y - source.y), 2));
+      }
+      return  {
+         x: source.x + Math.cos(tan) * dist,
+         y: source.y + Math.sin(tan) * dist
+       } 
+    }
 
     self.fireBullet = function(source, aim){
+
       var bullet = chooseBullet();
-      
-      bullet.setTarget(source, aim);
+      var tan = Math.atan2(aim.y - source.y, aim.x - source.x);
+      var target = chooseTarget(tan, source);
+
+
+      bullet.setTarget(source, target);
+
     };
 
   };

@@ -442,7 +442,7 @@ guyModule.factory('Guy', function($q, states, $timeout){
     };
 
     self.weapon = {
-      delay: 200,
+      delay: 100,
       x: 100,
       y: 100
     };
