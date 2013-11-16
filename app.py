@@ -102,7 +102,7 @@ def get_lobby():
 @app.route('/api/lobby/', methods=['POST'])
 def post_lobby():
   now = datetime.now()
-  lobby, created = Lobby.objects.get_object_or_404(user=core.current_user,
+  lobby, created = Lobby.objects.get_or_create(user=core.current_user.get_id(),
     defaults={'last_action': now})
   lobby.last_action = now
   lobby.save()
