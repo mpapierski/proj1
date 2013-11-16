@@ -61,20 +61,34 @@ var ClientCtrl = function($scope, server, client, $http, $state, Guy){
 
   setupComm($scope, Guy);
 };
+var MainCtrl = function(){};
 
-var MainCtrl = function($scope, client, $http, Guy){
+var ServerCtrl = function($scope, client, $http, Guy, $state){
   client($scope);
   var channel;
   setupComm($scope, Guy);
 
 
+  $scope.$watch('player.hp', function(hp){
+    if (hp <= 0 && !$scope.dead){
+      alert('you are dead');
+      $scope.dead = true;
+      $state.go('lobby');
+    }
+  })
 };
 
 app.config(function($stateProvider){
-  $stateProvider.state('index',{
+  $stateProvider.state('lobby',{
     url: '/',
     controller: MainCtrl,
-    template: '<div><canvas screen></canvas></div>'
+    template: '<div></div>'
+  });
+
+  $stateProvider.state('game',{
+    url: '/game',
+    controller: ServerCtrl,
+    template: '<div>{{ player.hp }}<canvas screen></canvas></div>'
   });
 
   $stateProvider.state('client',{
@@ -82,9 +96,5 @@ app.config(function($stateProvider){
     controller: ClientCtrl,
     template: '<div><canvas screen></canvas></div>'
   });
-    $stateProvider.state('game',{
-    url: '/game',
-    controller: 'GameCtrl',
-    template: '<canvas screen></canvas>'
-  });
+
 });

@@ -368,7 +368,7 @@ guyModule.factory('hpStates', function(){
     normal: {
       hit: function(guy, message){
         var dmg = message.power;
-        guy.hp -= dmg;
+        guy.harm(dmg);
       }
     }
   };
@@ -415,7 +415,6 @@ guyModule.factory('states', function(moveStates, hpStates, weaponStates){
 });
 
 
-
 guyModule.factory('Guy', function($q, states, $timeout){
 
   return function Guy(game){
@@ -438,6 +437,7 @@ guyModule.factory('Guy', function($q, states, $timeout){
     };
 
     self.weapon = {
+      power: 5,
       delay: 100,
       x: 100,
       y: 100
@@ -530,7 +530,11 @@ guyModule.factory('Guy', function($q, states, $timeout){
     self.doFire = function(){
       game.fireBullet(self, self.weapon);
     };
-
+    self.harm = function(dmg){
+      self.hp -= dmg;
+      console.log('harming', self.hp);
+      game.scope.$apply();
+    };
     self.onTick = function(ctx, timedelta){
       self.x += timedelta * self.acc.x;
       if (self.x > 640 - 48) self.x = 640 - 48;

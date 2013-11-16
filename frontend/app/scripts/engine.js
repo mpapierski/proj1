@@ -150,6 +150,10 @@ engine.factory('engine', function(background) {
       }
       var dist = 10000;
       if (chosenTarget){
+        chosenTarget.onMessage({
+          type: 'hit',
+          power: source.weapon.power
+        });
         dist = Math.sqrt(Math.pow(Math.abs(chosenTarget.x - source.x), 2) + Math.pow(Math.abs(chosenTarget.y - source.y), 2));
       }
       return  {
@@ -166,7 +170,7 @@ engine.factory('engine', function(background) {
 
 
       bullet.setTarget(source, target);
-
+      
     };
 
   };
