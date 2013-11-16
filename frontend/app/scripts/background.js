@@ -53,7 +53,7 @@ background.factory('background', function($http, $q) {
       return dfd.promise;
     }
     self.moveRight = function() {
-      console.log('move right');
+      //console.log('move right');
       self.direction = 'left';
     }
     self.setPosition = function(x, y) {

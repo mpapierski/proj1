@@ -10,11 +10,6 @@ var idlePoints = [
         angle: Math.PI,
         length: 1.5,
         children: [
-          { // head
-            name: 'head',
-            angle: Math.PI * 0.1,
-            length: 2
-          },
         ]
       },
       { // head
@@ -434,6 +429,7 @@ guyModule.factory('Guy', function($q, states, $timeout){
     self.x = 200;
     self.size = 3;
     self.y = 200;
+    self.mouthSize = 10;
 
     self.acc = {
       factor: 0.1,
@@ -557,16 +553,20 @@ guyModule.factory('Guy', function($q, states, $timeout){
         
       }
       doDraw(self.currentAnim, self.x, self.y, Math.PI*0.5);
-
+      
+      // hardcoded head 
       ctx.beginPath();
-      // draw ziomeczek's head
-      ctx.arc(self.x, self.y - 15, 8, 0, 2 * Math.PI, false);
-      ctx.arc(self.x - 3, self.y - 16, 2, 0, 2 * Math.PI, false);
-      ctx.arc(self.x + 3, self.y - 16, 2, 0, 2 * Math.PI, false);
-      ctx.fillStyle = 'white';
-      ctx.fill();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = '#003300';
+      ctx.arc(self.x, self.y - 15, 10, 0, 2 * Math.PI, false);
+      ctx.stroke();
+      ctx.beginPath();
+      
+      ctx.arc(self.x - 4, self.y - 16, 2, 0, 2 * Math.PI, false); // left eye
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(self.x + 4, self.y - 16, 2, 0, 2 * Math.PI, false); // right eye
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(self.x, self.y - 12, 3, 0, 1 * Math.PI, false); // smile
       ctx.stroke();
     };
   };
