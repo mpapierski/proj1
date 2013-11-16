@@ -36,9 +36,6 @@ rtc.factory('client', function(){
       window.channel = answererDataChannel;
       var ws = new WebSocket('ws://127.0.0.1:5001');
 
-      ws.onopen = function(){
-        console.log('open');
-      };
 
       ws.onmessage = function(msg){
         var data = JSON.parse(msg.data);
@@ -65,7 +62,9 @@ rtc.factory('client', function(){
 
       
       answererDataChannel.onopen = function(){
+        console.log('open');
         scope.channel = answererDataChannel;
+        scope.$apply();
       }
       
       answerer.onicecandidate = function (event) {
@@ -114,6 +113,7 @@ rtc.factory('server', function(){
 
     serverDataChannel.onopen = function(){
       scope.channel = serverDataChannel;
+      scope.$apply();
     }
 
 
