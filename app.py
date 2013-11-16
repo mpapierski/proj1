@@ -9,13 +9,13 @@ from flask.ext.script import Manager, Server, prompt, prompt_pass
 
 app = Flask(__name__, static_folder='frontend/app', static_url_path='/static')
 app.debug = os.getenv('DEBUG')
-app.config["MONGODB_SETTINGS"] = {'DB': "proj", 'HOST': '10.254.31.115'}
+app.config["MONGODB_SETTINGS"] = {'DB': "proj", 'HOST': '10.254.1.122'}
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = 'super-secret'
 
 # MongoDB Config
 app.config['MONGODB_DB'] = 'proj'
-app.config['MONGODB_HOST'] = '10.254.31.115'
+app.config['MONGODB_HOST'] = '10.254.1.122'
 app.config['MONGODB_PORT'] = 27017
 
 # Flask-Security
