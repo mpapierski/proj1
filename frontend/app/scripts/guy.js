@@ -380,7 +380,7 @@ guyModule.factory('hpStates', function(){
 
 });
 
-guyModule.factory('weaponStates', function(){
+guyModule.factory('weaponStates', function($timeout){
 
   return {
     idle: {
@@ -389,8 +389,19 @@ guyModule.factory('weaponStates', function(){
       }
     },
     firing: {
+      onEnter: function(sender){
+        sender._firing = true;
+        function setFiringTimeout(){
+          if(sender._firing){
+            sender.doFire();
+            $timeout(setFiringTimeout, sender.weapon.delay);
+          }
+        }
+        setFiringTimeout();
+      },
       stopFiring: function(sender){
         sender.transitionTo('weapon', 'idle');
+        delete sender._firing;
       }
     }
   };
@@ -412,7 +423,7 @@ guyModule.factory('states', function(moveStates, hpStates, weaponStates){
 
 guyModule.factory('Guy', function($q, states, $timeout){
 
-  return function Guy(){
+  return function Guy(game){
     var self = this;
     self.hp = 100;
     self.states = {
@@ -423,11 +434,19 @@ guyModule.factory('Guy', function($q, states, $timeout){
     self.x = 200;
     self.size = 3;
     self.y = 200;
+
     self.acc = {
       factor: 0.1,
       x: 0,
       y: 0
     };
+
+    self.weapon = {
+      delay: 500,
+      x: 100,
+      y: 100
+    };
+
     self.animLength = 500;
     self.currentAnim = angular.copy(idlePoints);
     self.previousAnim = idlePoints;
@@ -508,6 +527,11 @@ guyModule.factory('Guy', function($q, states, $timeout){
       }
       
     };
+
+    self.doFire = function(){
+      game.fireBullet(self, self.weapon);
+    };
+
     self.onTick = function(ctx, timedelta){
       self.x += timedelta * self.acc.x;
       self.y += timedelta * self.acc.y;

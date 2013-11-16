@@ -1,10 +1,46 @@
+'use strict';
+
 var engine = angular.module('engine', ['background']);
 
+function Bullet(){
+  var self = this;
+  this.life = 0;
+  self.sx = self.sy = self.dx = self.dy = 0;
+  this.onDraw = function(ctx, timedelta){
+    if (self.life <= 0){
+      return;
+    }
+    ctx.beginPath();
+    ctx.moveTo(self.sx, self.sy);
+    ctx.lineTo(self.dx, self.dy);
+    ctx.closePath();
+    ctx.stroke();
+  };
+
+  this.onTick = function(ctx, timedelta){
+    if (self.life <= 0){
+      return;
+    }
+    self.life -= timedelta;
+
+  };
+
+}
+function spawnBullets(count){
+  var rv = [];
+  var i;
+  for (i = 0; i <= count; i++){
+    rv.push(new Bullet());
+  }
+  return rv;
+
+}
 engine.factory('engine', function(background) {
   return function() {
     var self = this;
     self.backgrounds = [];
     self.objects = [];
+    self.bullets = spawnBullets(100);
     self.el = null; // canvas dom
     self.createCanvas = function(width, height) {
       var canvas = document.createElement('canvas');
@@ -62,7 +98,35 @@ engine.factory('engine', function(background) {
 
       old = timestamp;
     };
+
+
+
+    function chooseBullet(){
+      var chosenBullet;
+      var i;
+      for (i = 0; i <= self.bullets.length; i++){
+        if (self.bullets[i].life <= 0) {
+          chosenBullet = self.bullets[i];
+          break;
+        }
+      }
+      if (!chosenBullet){
+
+        chosenBullet = new Bullet();
+        self.bullets.append(chosenBullet);
+      }
+      return chosenBullet;
+    }
+
+
+    self.fireBullet = function(source, aim){
+      var bullet = chooseBullet();
+      bullet.life = 1000;
+      bullet.sx = source.x;
+      bullet.sy = source.y;
+      bullet.dx = aim.x;
+      bullet.dy = aim.y;
+    };
+
   }
 });
-
-
