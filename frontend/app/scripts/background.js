@@ -19,6 +19,15 @@ var tilesDb = {
     ctx.lineTo(48 / 2, 48 / 3);
     ctx.stroke()
   }),
+  5: tileFactory(function(ctx) {
+    ctx.beginPath();
+    ctx.moveTo(0, 48);
+    ctx.lineTo(48 / 2, 48 / 2);
+    ctx.moveTo(48 / 2, 48 / 2);
+    ctx.lineTo(48, 48);
+    ctx.stroke();
+  }),
+  
 }
 
 tilesDb[1] = tilesDb[0];
@@ -37,7 +46,7 @@ background.factory('background', function($http, $q) {
         self.mapdata = data;
         self.createMapBuffer();
         self.draw();
-        setTimeout(function() { dfd.resolve(self); }, 1000);
+        dfd.resolve(self);
       }).error(function(data) {
         dfd.reject(data);
       });
