@@ -111,6 +111,14 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
       scope.player = new Guy();
       // scope.player2 = new Guy();
       // scope.player2.x = 400;
+      var origin = scope.player.onTick;
+      scope.player.onTick = function() {
+        if (scope.player.x >= 300)
+        {
+          e.background.moveRight();
+        }
+        origin();
+      }
       keyboard.init(scope.player);
       e.objects.push(scope.player);
       // e.objects.push(scope.player2);
