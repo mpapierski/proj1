@@ -1,3 +1,4 @@
+'use strict';
 var idlePoints = [
   { // chest
     name: 'idle',
@@ -231,73 +232,116 @@ var runRight2 = [
 var guyModule = angular.module('guy', []);
 
 
+function alternatingAnimation(sender, a1, a2, delay){
+  var doRepeat = true;
+  var counter = 0;
+  function scheduleAnimation(){
+    if (!doRepeat){
+      return;
+    }
+    var target = counter % 2 ? a1 : a2;
+    counter +=1;
+    sender.animate(target, delay).then(scheduleAnimation);
+  }
+  scheduleAnimation();
+  return function cancelAlternatingAnimation(){
+    doRepeat = false;
+    sender.stopAnimation();
+  };
+}
+
+function updateMovingAnimation(guy){
+  if (guy._cancelMoving){
+    guy._cancelMoving();
+  }
+  var a1, a2;
+  if (guy.acc.x === 0 && guy.acc.y === 0){
+    return;
+  }
+
+  if (Math.abs(guy.acc.x) > Math.abs(guy.acc.y)){
+    if (guy.acc.x > 0){
+      a1 = runRight1;
+      a2 = runRight2;
+    } else {
+      a1 = runRight1;
+      a2 = runRight2;
+    }
+  } else {
+    if (guy.acc.y > 0){
+      a1 = runRight1;
+      a2 = runRight2;
+    } else {
+      a1 = runRight1;
+      a2 = runRight2;
+    }
+  }
+  guy._cancelMoving = alternatingAnimation(guy, a1, a2, 500);
+}
+
 
 guyModule.factory('moveStates', function(){
   var MoveStateBase = function(){
-      this.right = function(sender){
-        sender.transitionTo('moving', 'right');
-      };
-      this.left = function(sender){
-        sender.transitionTo('moving', 'left');
-      };
-      this.up = function(sender){
-        sender.transitionTo('moving', 'up');
-      };
-      this.down = function(sender){
-        sender.transitionTo('moving', 'down');
-      };
-      this.release_up = function(sender){
-        sender.acc.y += sender.acc.factor * 1;
-      };
-      this.release_down = function(sender){
-        sender.acc.y -= sender.acc.factor * 1;
-      };
-      this.release_left = function(sender){
-        sender.acc.x += sender.acc.factor * 1;
-      };
-      this.release_right = function(sender){
-        sender.acc.x -= sender.acc.factor * 1;
-      };
+    this.right = function(sender){
+      sender.transitionTo('moving', 'right');
+      updateMovingAnimation(sender);
+    };
+    this.left = function(sender){
+      sender.transitionTo('moving', 'left');
+      updateMovingAnimation(sender);
+    };
+    this.up = function(sender){
+      sender.transitionTo('moving', 'up');
+      updateMovingAnimation(sender);
+    };
+    this.down = function(sender){
+      sender.transitionTo('moving', 'down');
+      updateMovingAnimation(sender);
+    };
+    this.release_up = function(sender){
+      sender.acc.y += sender.acc.factor * 1;
+      updateMovingAnimation(sender);
+    };
+    this.release_down = function(sender){
+      sender.acc.y -= sender.acc.factor * 1;
+      updateMovingAnimation(sender);
+    };
+    this.release_left = function(sender){
+      sender.acc.x += sender.acc.factor * 1;
+      updateMovingAnimation(sender);
+    };
+    this.release_right = function(sender){
+      sender.acc.x -= sender.acc.factor * 1;
+      updateMovingAnimation(sender);
+    };
   };
 
   var idle = new MoveStateBase();
   var right = angular.extend({
       onEnter: function(sender){
         sender.acc.x += sender.acc.factor * 1;
-
-        sender._movingRight = true;
-        var counter = 0;
-        function scheduleAnimation(){
-          if (!sender._movingRight){
-            return;
-          }
-          var target = counter % 2 ? runRight1 : runRight2;
-          counter +=1;
-          sender.animate(target).then(scheduleAnimation);
-        }
-        scheduleAnimation();
-
+        updateMovingAnimation(sender);
       },
 
       onExit: function(sender){
-        delete sender._movingRight;
-        sender.stopAnimation();
       }
+
     }, new MoveStateBase());
 
   var left = angular.extend({
       onEnter: function(sender){
         sender.acc.x -= sender.acc.factor * 1;
+        updateMovingAnimation(sender);
       },
 
       onExit: function(sender){
-
       }
     }, new MoveStateBase());
 
   var up = angular.extend({
       onEnter: function(sender){
         sender.acc.y -= sender.acc.factor * 1;
+        updateMovingAnimation(sender);
       },
       onExit: function(sender){
       }
@@ -306,11 +350,9 @@ guyModule.factory('moveStates', function(){
   var down = angular.extend({
       onEnter: function(sender){
         sender.acc.y += sender.acc.factor * 1;
+        updateMovingAnimation(sender);
       },
       onExit: function(sender){
-      },
-      release_down: function(sender){
-        sender.transitionTo('moving', 'idle');
       }
     }, new MoveStateBase());
 
@@ -318,7 +360,6 @@ guyModule.factory('moveStates', function(){
       idle: idle,
       right: right,
       left: left,
-
       up: up,
       down: down
     };
@@ -363,7 +404,7 @@ guyModule.factory('Guy', function($q, states, $timeout){
       x: 0,
       y: 0
     };
-
+    self.animLength = 500;
     self.currentAnim = angular.copy(idlePoints);
     self.previousAnim = idlePoints;
     self.targetAnim = idlePoints;
@@ -387,7 +428,7 @@ guyModule.factory('Guy', function($q, states, $timeout){
 
     function doAnimate(delta){
       
-      self.animDone += delta / 5000;
+      self.animDone += delta / self.animLength;
 
       animInternal(self.currentAnim, self.previousAnim, self.targetAnim, self.animDone);
       
@@ -400,8 +441,9 @@ guyModule.factory('Guy', function($q, states, $timeout){
 
     }
 
-    self.animate = function(targetAnim){
+    self.animate = function(targetAnim, animLength){
       self.previousAnim = self.currentAnim;
+      self.animLength = animLength || 500;
       self.animDfd = $q.defer();
       self.targetAnim = targetAnim;
       return self.animDfd.promise;
