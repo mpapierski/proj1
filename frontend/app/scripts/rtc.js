@@ -94,45 +94,32 @@ rtc.factory('server', function(){
   return function createServer(scope){
     var ws = new WebSocket('ws://127.0.0.1:5001');
     var serverScope = scope.$new();
-    var server = new webkitRTCPeerConnection(iceServers, optionalRtpDataChannels);
+    var server;
 
-    var serverDataChannel = server.createDataChannel('RTCDataChannel', {
-      reliable: false
-    });
     
-    ws.onmessage = function(msg){
-        var data = JSON.parse(msg.data);
-        if (data.type === 'sd'){
-          var sdp = new RTCSessionDescription(data.data);
-          server.setRemoteDescription(sdp);
+    ws.onopen = function(){
+      server = new webkitRTCPeerConnection(iceServers, optionalRtpDataChannels);
+
+      server.onicecandidate = function (event) {
+        if (!event || !event.candidate){
+          return;
         }
-        if (data.type === 'ice'){
-          server.addIceCandidate(new RTCIceCandidate(data.data));
-        }
-    };
-
-    serverDataChannel.onopen = function(){
-      scope.channel = serverDataChannel;
-      scope.$apply();
-    }
-
-
-    server.onicecandidate = function (event) {
-      if (!event || !event.candidate){
-        return;
+        ws.send(JSON.stringify({
+          type: 'ice',
+          data: {
+            sdpMLineIndex:  event.candidate.sdpMLineIndex,
+            sdpMid: event.candidate.sdpMid,
+            candidate: event.candidate.candidate
+          }
+        }));
+      };
+      var serverDataChannel = server.createDataChannel('RTCDataChannel', {
+        reliable: false
+      });
+      serverDataChannel.onopen = function(){
+        scope.channel = serverDataChannel;
+        scope.$apply();
       }
-      ws.send(JSON.stringify({
-        type: 'ice',
-        data: {
-          sdpMLineIndex:  event.candidate.sdpMLineIndex,
-          sdpMid: event.candidate.sdpMid,
-          candidate: event.candidate.candidate
-        }
-      }));
-    };
-
-
-    scope.$on('connect', function(){
 
       server.createOffer(function (sessionDescription) {
         server.setLocalDescription(sessionDescription);
@@ -145,7 +132,23 @@ rtc.factory('server', function(){
         }));
       }, null, mediaConstraints);
 
-    });
+    }
+    ws.onmessage = function(msg){
+        var data = JSON.parse(msg.data);
+        if (data.type === 'sd'){
+          var sdp = new RTCSessionDescription(data.data);
+          server.setRemoteDescription(sdp);
+        }
+        if (data.type === 'ice'){
+          server.addIceCandidate(new RTCIceCandidate(data.data));
+        }
+    };
+
+
+
+
+
+
 
   };
 

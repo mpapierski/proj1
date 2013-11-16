@@ -10,38 +10,52 @@ var app = angular.module('app', [
 ]);
 
 
-var ClientCtrl = function($scope, server, client, $http, $state){
+function setupComm($scope, Guy){
+  var channel;
+  $scope.$watch('channel', function(newChannel){
+    console.log('chan', newChannel);
+    if (channel || !newChannel){
+      return;
+    }
+    channel = newChannel;
+    channel.send(JSON.stringify({data: 'connected'}));
+    channel.onmessage = function(msg){
+      msg = JSON.parse(msg.data);
+      if (msg.data === 'connected'){
+        $scope.enemy = new Guy($scope.e);
+        $scope.enemy.x = 400;
+        $scope.engine.objects.push($scope.enemy);
+      }
+      if (msg.data == 'keyboard'){
+        $scope.enemy.onMessage({
+          type: msg.type
+        });
+      }
+    }
+  });
+  $scope.$on('keyboard', function(evt, data){
+    $scope.channel.send(JSON.stringify({
+      data: 'keyboard',
+      type: 'right'
+    }));
+  })
+
+
+}
+var ClientCtrl = function($scope, server, client, $http, $state, Guy){
   server($scope);
   var channel;
   $scope.$broadcast('connect');
-  $scope.$watch('channel', function(newChannel){
-    console.log('chan', newChannel);
-    if (channel || !newChannel){
-      return;
-    }
-    channel = newChannel;
-    channel.send('connected');
-    channel.onmessage = function(msg){
-      console.log('msg', msg);
-    }
-  });
 
+  setupComm($scope, Guy);
 };
 
-var MainCtrl = function($scope, client, $http){
+var MainCtrl = function($scope, client, $http, Guy){
   client($scope);
   var channel;
+  setupComm($scope, Guy);
 
-  $scope.$watch('channel', function(newChannel){
-    console.log('chan', newChannel);
-    if (channel || !newChannel){
-      return;
-    }
-    channel = newChannel;
-    channel.onmessage = function(msg){
-      console.log('msg', msg);
-    }
-  });
+
 };
 
 app.config(function($stateProvider){

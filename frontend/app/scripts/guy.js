@@ -234,7 +234,7 @@ function alternatingAnimation(sender, a1, a2, delay){
     if (!doRepeat){
       return;
     }
-    var target = counter % 2 ? a1 : a2;
+    var target = counter % 2 ? a2 : a1;
     counter +=1;
     sender.animate(target, delay).then(scheduleAnimation);
   }

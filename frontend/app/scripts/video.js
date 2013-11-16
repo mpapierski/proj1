@@ -14,7 +14,7 @@ video.factory('keyboard', function(){
 
 
   return {
-    init: function(player){
+    init: function(player, scope){
 
       var keys = [
         {
@@ -22,6 +22,9 @@ video.factory('keyboard', function(){
           prevent_repeat: true,
           on_keydown: function() {
             player.onMessage({
+              type: 'right'
+            });
+            scope.$emit('keyboard', {
               type: 'right'
             });
           },
@@ -103,6 +106,7 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
         element.bind('mousemove', function(evt){
           scope.player.weapon.x = evt.clientX;
           scope.player.weapon.y = evt.clientY;
+
         });
 
         $document.bind('mouseup', function(evt){
@@ -117,7 +121,7 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
       
       var canvas = element[0];
       var e = new engine();
-      e.init(canvas);
+      e.init(canvas, scope);
       scope.player = new Guy(e);
 
       var origin = scope.player.onTick;
@@ -128,7 +132,7 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
         }
         origin(ctx, delta);
       };
-      keyboard.init(scope.player);
+      keyboard.init(scope.player, scope);
       e.objects.push(scope.player);
 
 
