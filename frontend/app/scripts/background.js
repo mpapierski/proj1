@@ -37,7 +37,7 @@ background.factory('background', function($http, $q) {
         self.mapdata = data;
         self.createMapBuffer();
         self.draw();
-        setTimeout(function() { dfd.resolve(self); }, 1000);
+        dfd.resolve(self);
       }).error(function(data) {
         dfd.reject(data);
       });
