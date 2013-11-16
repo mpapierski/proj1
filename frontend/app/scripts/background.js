@@ -69,9 +69,6 @@ background.factory('background', function($http, $q) {
             var tileNumber = tileNumbers[i];
             if (tileNumber)
             {
-              self.ctx.fillStyle = "blue";
-              self.ctx.font = "bold 12px Arial";
-              self.ctx.fillText((i * 48) + ' ' + (j * 48), i * 48, j * 48);
               self.ctx.drawImage(tilesDb[tileNumber], (i - self.offx) * 48, (j - self.offy) * 48);
             }
           }

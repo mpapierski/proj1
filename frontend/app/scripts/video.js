@@ -109,6 +109,7 @@ video.directive('screen', function(keyboard, engine, Guy, $document){
       var e = new engine();
       e.init(canvas);
       scope.player = new Guy();
+      scope.player.x = scope.player.y = 0;
       // scope.player2 = new Guy();
       // scope.player2.x = 400;
       var origin = scope.player.onTick;
