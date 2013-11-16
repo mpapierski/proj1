@@ -1,4 +1,5 @@
 import os
+import glob
 from flask import Flask, json, abort, render_template, request
 from flask.ext.mongoengine import MongoEngine
 from flask.ext.security import Security, MongoEngineUserDatastore, \
@@ -39,6 +40,11 @@ class Room(db.Document):
   def to_json(self):
     return {'title': self.title,
       'content': self.content}
+
+class MapData(db.Document):
+  map_name = db.StringField()
+  start = db.ListField() # (x, y)
+  tiles = db.DynamicField()
 
 # Setup Flask-Security
 user_datastore = MongoEngineUserDatastore(db, User, Role)
@@ -102,5 +108,17 @@ def create_room():
   room = Room(owner=obj,title=title)
   room.save()
 
+@manager.command
+def import_maps():
+  for filename in glob.glob('maps/*.json'):
+    with open(filename) as input_file:
+      v = json.loads(input_file.read())
+      mapdata, created = MapData.objects.get_or_create(
+	map_name=v['map_name'],
+	defaults={
+	  'start': v['start'],
+	  'tiles': v['tiles']
+	})
+      mapdata.save()
 if __name__ == '__main__':
   manager.run()
